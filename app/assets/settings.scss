@@ -1,0 +1,76 @@
+/**
+ * Vuetify SASS variable overrides - Bucksbox "Artisanal Operations" theme.
+ * Overriding these two variables retints every Vuetify typography class
+ * (text-h1..h6, text-body-*, text-subtitle-*, text-caption) app-wide.
+ */
+@use 'vuetify/settings' with (
+  $body-font-family: '"Inter", sans-serif',
+  $heading-font-family: '"Manrope", sans-serif',
+  $border-radius-root: 10px
+);
+
+// Self-hosted via @nuxt/fonts (auto-detected from these font-family references)
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+.text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6,
+.font-weight-bold, .font-weight-semibold, .v-card-title, .v-toolbar-title {
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+// Numeric / status / mono data - receipt-like precision
+.mono-data, .v-chip {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+body {
+  background-color: #FAF9FC;
+}
+
+// Shared card surface - flat tonal card with hover lift instead of heavy shadow
+.app-card {
+  background: #fff;
+  border: 1px solid #EAE6F2;
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.app-card:hover {
+  box-shadow: 0 12px 28px -8px rgba(74, 59, 120, 0.12);
+}
+
+// Page header bar (title + subtitle + action)
+.app-header-bar {
+  background: #fff;
+  border: 1px solid #EAE6F2;
+  border-radius: 16px;
+}
+
+// Bento-style KPI tile
+.stat-tile {
+  background: #fff;
+  border: 1px solid #EAE6F2;
+  border-radius: 16px;
+  padding: 20px;
+}
+.stat-tile .stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5B5566;
+}
+.stat-tile .stat-value {
+  font-family: 'Manrope', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1A1626;
+}
+
+// "View More" load-more affordance used instead of table pagination
+.load-more-btn {
+  border: 1px dashed #D8D2E8;
+  border-radius: 9999px;
+}

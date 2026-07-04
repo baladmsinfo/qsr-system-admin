@@ -1,0 +1,151 @@
+https://nuxt.com/modules/izi-toast
+
+Automating a Subscription Billing System for SaaS, utility, or service-based companies enables seamless plan management, billing cycles, recurring payments, pro-rating, and reminders, all from a centralized backend.
+
+🎯 Goal
+Create a multi-tenant, automated subscription system that supports:
+
+Multiple billing cycles (monthly, yearly, etc.)
+
+Auto-renewals and expirations
+
+Flexible plans and addons
+
+Invoice generation and online payments
+
+Email/WhatsApp/SMS reminders and alerts
+
+🧩 Key Features
+Category Functionality
+🏢 Tenant Management Multiple companies (tenants), each with their own customers and plans
+👤 Customer Management Customers with contact info, payment methods, history
+💼 Plan Management Monthly/annual plans with trial period, addons, and pricing tiers
+🔁 Subscription Engine Start, renew, cancel, and pause subscriptions
+📆 Billing & Invoicing Auto-generate invoices based on billing cycle
+💳 Payment Gateway Razorpay / Stripe / PhonePe integration
+🔔 Notification System Renewal reminders, failed payments, invoice alerts
+📈 Analytics Dashboard Revenue, churn, active vs inactive subscribers
+
+🛠️ Tech Stack (Recommended)
+Backend: Fastify (Node.js) + Prisma ORM + PostgreSQL
+
+Queue & Scheduling: BullMQ + Redis for billing cycle and reminders
+
+Frontend: Vue.js + TailwindCSS or Vuetify (Admin Panel + Customer Portal)
+
+Payments: Razorpay, Stripe, PhonePe
+
+Email/Alerting: Resend, Twilio, WhatsApp API
+
+🧠 Core Data Models (Prisma)
+ts
+Copy
+Edit
+model Tenant {
+id String @id @default(cuid())
+name String
+plans Plan[]
+customers Customer[]
+}
+
+model Plan {
+id String @id @default(cuid())
+name String
+price Float
+billingCycle String // MONTHLY, YEARLY
+trialDays Int?
+tenantId String
+}
+
+model Customer {
+id String @id @default(cuid())
+name String
+email String
+phone String
+tenantId String
+subscriptions Subscription[]
+}
+
+model Subscription {
+id String @id @default(cuid())
+customerId String
+planId String
+status String // ACTIVE, CANCELED, TRIAL, EXPIRED
+startDate DateTime
+endDate DateTime
+nextBillingDate DateTime
+autoRenew Boolean @default(true)
+lastInvoiceId String?
+}
+
+model Invoice {
+id String @id @default(cuid())
+subscriptionId String
+amount Float
+status String // PENDING, PAID, FAILED
+dueDate DateTime
+paidAt DateTime?
+}
+🔁 Automation Flow
+🔄 1. Subscription Renewal Cron (Daily)
+Fetch all subscriptions where nextBillingDate = today
+
+Generate Invoice record
+
+Trigger payment via Razorpay/Stripe
+
+Update nextBillingDate to +1 month/year
+
+📧 2. Reminder Notifications
+7/3/1 days before nextBillingDate
+
+Send Email/WhatsApp reminders
+
+🧾 3. Invoice Generation
+On new subscription or renewal
+
+Auto PDF invoice or email invoice
+
+Mark invoice PAID on webhook callback
+
+💳 Razorpay Integration Flow
+Create Razorpay payment link or order
+
+Store razorpay_order_id in Invoice
+
+On webhook payment.captured, update invoice to PAID
+
+Trigger receipt and subscription extension
+
+📈 Admin Dashboard Widgets
+Widget Purpose
+💰 Monthly Recurring Revenue Sum of active subscriptions this month
+📉 Churn Rate Cancelled / total subscriptions
+📈 Plan Breakdown Revenue per plan
+⏳ Upcoming Renewals Subscriptions expiring in next 7 days
+
+🧪 Optional Enhancements
+Free trials with auto-conversion
+
+Custom billing cycle support (weekly/quarterly)
+
+Coupon code/discount handling
+
+Pause/Resume subscriptions
+
+Audit logs & payment retries
+
+✅ Ready to Build?
+Pick your first step:
+
+🧠 Data modeling (Prisma schema)
+
+⚙️ Fastify backend API (multi-tenant)
+
+🔁 Billing cron + queue logic
+
+💳 Razorpay payment + webhook
+
+📤 Email/WhatsApp reminders
+
+📊 Vue.js Admin UI

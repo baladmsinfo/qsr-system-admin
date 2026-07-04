@@ -1,67 +1,52 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card elevation="2" class="rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+      <div>
+        <h1 class="text-h5 font-weight-bold mb-0">Chart of Accounts</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">View all accounts grouped by type</p>
+      </div>
+      <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" @click="loadAccounts" :disabled="loading">
+        Refresh
+      </v-btn>
+    </div>
 
-      <!-- 🔹 Header -->
-      <v-card-title class="text-h6 d-flex align-center justify-space-between">
-        <div>
-          Chart of Accounts
-          <p class="text-body-2 text-medium-emphasis mt-1 mb-0">
-            View all accounts grouped by type
-          </p>
+    <div v-if="accounts">
+      <div v-for="(list, type) in accounts" :key="type">
+        <div class="d-flex justify-space-between align-center mb-3 mt-6">
+          <h3 class="text-subtitle-1 font-weight-bold">{{ formatHeader(type) }}</h3>
+          <v-btn color="primary" size="small" variant="tonal" prepend-icon="mdi-plus" @click="openAddDialog(type)">
+            Add {{ formatHeader(type) }}
+          </v-btn>
         </div>
 
-        <v-btn color="primary" variant="flat" @click="loadAccounts" :disabled="loading">
-          REFRESH
-        </v-btn>
-      </v-card-title>
-
-      <v-divider />
-
-      <div v-if="accounts" class="pa-4">
-
-        <template v-for="(list, type) in accounts" :key="type">
-
-          <div class="d-flex justify-space-between align-center mt-6 mb-2">
-            <h3 class="text-body-1 font-weight-bold">
-              {{ formatHeader(type) }}
-            </h3>
-
-            <v-btn color="primary" size="small" variant="flat" class="rounded-pill" @click="openAddDialog(type)">
-              <v-icon left>mdi-plus</v-icon>
-              Add {{ formatHeader(type) }}
-            </v-btn>
+        <div class="app-card mb-2">
+          <div v-for="(acc, idx) in list" :key="acc.id" class="d-flex justify-space-between align-center px-5 py-3 cursor-pointer"
+            :class="{ 'account-row--selected': selectedAccountId === acc.id }"
+            :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''" @click="selectedAccountId = acc.id">
+            <div class="d-flex align-center ga-2">
+              <span class="font-weight-medium">{{ acc.name }}</span>
+              <v-btn v-if="selectedAccountId === acc.id && !protectedAccounts.includes(acc.name)" color="error"
+                size="small" variant="text" @click.stop="deleteAccount(acc)">Delete</v-btn>
+            </div>
+            <span class="font-weight-medium mono-data">
+              {{
+                acc.balance === 0
+                  ? $formatPrice(acc.balance)
+                  : acc.balance > 0
+                    ? `${$formatPrice(acc.balance)} DR`
+                    : `${$formatPrice(Math.abs(acc.balance))} CR`
+              }}
+            </span>
           </div>
 
-          <table class="pl-table">
-            <tbody>
-              <tr v-for="acc in list" :key="acc.id" @click="selectedAccountId = acc.id"
-                :class="{ selectedRow: selectedAccountId === acc.id }" class="cursor-pointer">
-                <td>{{ acc.name }}
-                  <v-btn v-if="selectedAccountId === acc.id && !protectedAccounts.includes(acc.name)" color="red"
-                    size="small" variant="text" class="ms-2" @click.stop="deleteAccount(acc)"> Delete Account </v-btn>
-                </td>
-
-                <td class="text-end">
-                  {{
-                    acc.balance === 0
-                      ? $formatPrice(acc.balance)
-                      : acc.balance > 0
-                        ? `${$formatPrice(acc.balance)} DR`
-                  : `${$formatPrice(Math.abs(acc.balance))} CR`
-                  }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-        </template>
-
+          <div v-if="!list.length" class="text-center text-medium-emphasis py-6">No accounts in this group</div>
+        </div>
       </div>
+    </div>
 
-      <v-alert v-else type="info" variant="tonal" border="start" class="ma-4">
-        No accounts found.
-      </v-alert>
+    <div v-else class="app-card pa-10 text-center text-medium-emphasis">
+      No accounts found.
+    </div>
 
       <!-- ➕ ADD ACCOUNT DIALOG -->
       <v-dialog v-model="addDialog" max-width="450">
@@ -85,8 +70,6 @@
           </div>
         </v-card>
       </v-dialog>
-
-    </v-card>
   </v-container>
 </template>
 
@@ -181,19 +164,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.pl-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-
-.pl-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.text-end {
-  text-align: right;
+.account-row--selected {
+  background: #F3F1F8;
 }
 </style>

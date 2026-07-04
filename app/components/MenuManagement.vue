@@ -1,75 +1,94 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Menu Management</h2>
-        <p class="text-body-2 text-medium-emphasis">Categories, items, availability &amp; pricing</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Menu Management</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Categories, items, availability &amp; pricing</p>
       </div>
 
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch" density="compact"
-        variant="outlined" hide-details style="max-width: 260px" @update:model-value="loadItems" />
-    </v-sheet>
+        hide-details style="max-width: 260px" @update:model-value="loadItems" />
+    </div>
 
-    <v-tabs v-model="tab" class="mb-4">
-      <v-tab value="items">Menu Items</v-tab>
-      <v-tab value="categories">Categories</v-tab>
-    </v-tabs>
+    <div class="d-flex flex-wrap ga-2 mb-6">
+      <v-chip :color="tab === 'items' ? 'primary' : undefined" :variant="tab === 'items' ? 'flat' : 'tonal'"
+        class="font-weight-medium" @click="tab = 'items'">Menu Items</v-chip>
+      <v-chip :color="tab === 'categories' ? 'primary' : undefined" :variant="tab === 'categories' ? 'flat' : 'tonal'"
+        class="font-weight-medium" @click="tab = 'categories'">Categories</v-chip>
+    </div>
 
     <v-window v-model="tab">
       <!-- ITEMS -->
       <v-window-item value="items">
-        <v-sheet class="d-flex align-center justify-space-between mb-4 px-2">
+        <div class="d-flex flex-wrap align-center justify-space-between mb-5 ga-3">
           <v-select v-model="categoryFilter" :items="categoryOptions" label="Filter by category" clearable
-            density="compact" variant="outlined" hide-details style="max-width: 260px" @update:model-value="loadItems" />
+            density="compact" hide-details style="max-width: 260px" @update:model-value="loadItems" />
           <v-btn color="primary" prepend-icon="mdi-plus" @click="openItemDialog()">Add Item</v-btn>
-        </v-sheet>
+        </div>
 
-        <v-data-table :headers="itemHeaders" :items="menu.items" :loading="menu.loading" class="elevation-1 rounded-lg">
-          <template #item.image="{ item }">
-            <v-avatar size="36" rounded="lg">
-              <v-img v-if="item.imageUrl" :src="item.imageUrl" />
-              <v-icon v-else>mdi-food</v-icon>
-            </v-avatar>
-          </template>
+        <v-row>
+          <v-col v-for="item in visibleItems" :key="item.id" cols="12" sm="6" md="4" lg="3">
+            <div class="app-card pa-4 h-100 d-flex flex-column">
+              <div class="d-flex justify-space-between align-start mb-3">
+                <v-avatar size="44" rounded="lg" color="surface-variant">
+                  <v-img v-if="item.imageUrl" :src="item.imageUrl" />
+                  <v-icon v-else color="primary">mdi-food</v-icon>
+                </v-avatar>
+                <v-menu>
+                  <template #activator="{ props }">
+                    <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item @click="openItemDialog(item)">
+                      <template #prepend><v-icon size="18" class="me-2">mdi-pencil</v-icon></template>
+                      Edit
+                    </v-list-item>
+                    <v-list-item @click="menu.updateAvailability(item.id, 'AVAILABLE')">Mark Available</v-list-item>
+                    <v-list-item @click="menu.updateAvailability(item.id, 'OUT_OF_STOCK')">Mark Out of Stock</v-list-item>
+                    <v-list-item @click="menu.updateAvailability(item.id, 'HIDDEN')">Hide from menu</v-list-item>
+                    <v-list-item @click="confirmDeleteItem(item)">
+                      <template #prepend><v-icon size="18" class="me-2" color="error">mdi-delete</v-icon></template>
+                      <span class="text-error">Delete</span>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </div>
 
-          <template #item.price="{ item }">
-            {{ $formatPrice(item.price) }}
-          </template>
+              <div class="font-weight-bold mb-1">{{ item.name }}</div>
+              <div class="text-caption text-medium-emphasis mb-3">{{ item.category?.name || '—' }} &middot; {{ item.kitchenStation }}</div>
 
-          <template #item.availability="{ item }">
-            <v-chip size="small" :color="availabilityColor(item.availability)" variant="tonal">
-              {{ item.availability.replace('_', ' ') }}
-            </v-chip>
-          </template>
+              <v-spacer />
 
-          <template #item.actions="{ item }">
-            <v-menu>
-              <template #activator="{ props }">
-                <v-btn size="small" variant="text" icon="mdi-toggle-switch" v-bind="props" />
-              </template>
-              <v-list density="compact">
-                <v-list-item @click="menu.updateAvailability(item.id, 'AVAILABLE')">Mark Available</v-list-item>
-                <v-list-item @click="menu.updateAvailability(item.id, 'OUT_OF_STOCK')">Mark Out of Stock</v-list-item>
-                <v-list-item @click="menu.updateAvailability(item.id, 'HIDDEN')">Hide from menu</v-list-item>
-              </v-list>
-            </v-menu>
-            <v-icon size="20" color="primary" class="mx-2" @click="openItemDialog(item)">mdi-pencil</v-icon>
-            <v-icon size="20" color="error" @click="confirmDeleteItem(item)">mdi-delete</v-icon>
-          </template>
-        </v-data-table>
+              <div class="d-flex justify-space-between align-center mt-2">
+                <span class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(item.price) }}</span>
+                <v-chip size="small" :color="availabilityColor(item.availability)" variant="tonal">
+                  {{ item.availability.replace('_', ' ') }}
+                </v-chip>
+              </div>
+            </div>
+          </v-col>
+
+          <v-col v-if="!menu.items.length" cols="12">
+            <div class="app-card pa-10 text-center text-medium-emphasis">No menu items yet</div>
+          </v-col>
+        </v-row>
+
+        <div v-if="visibleItems.length < menu.items.length" class="d-flex justify-center mt-6">
+          <v-btn variant="outlined" class="load-more-btn" @click="itemsShown += 12">View More</v-btn>
+        </div>
       </v-window-item>
 
       <!-- CATEGORIES -->
       <v-window-item value="categories">
-        <v-sheet class="d-flex justify-end mb-4 px-2">
+        <div class="d-flex justify-end mb-5">
           <v-btn color="primary" prepend-icon="mdi-plus" @click="openCategoryDialog()">Add Category</v-btn>
-        </v-sheet>
+        </div>
 
-        <v-expansion-panels variant="accordion">
-          <v-expansion-panel v-for="cat in menu.categories" :key="cat.id">
+        <v-expansion-panels>
+          <v-expansion-panel v-for="cat in menu.categories" :key="cat.id" class="app-card mb-3" elevation="0">
             <v-expansion-panel-title>
               <div class="d-flex align-center justify-space-between w-100 me-4">
-                <span class="font-weight-medium">{{ cat.name }}</span>
+                <span class="font-weight-bold">{{ cat.name }}</span>
                 <span class="text-caption text-medium-emphasis">{{ cat.subCategories.length }} sub-categories</span>
               </div>
             </v-expansion-panel-title>
@@ -213,15 +232,8 @@ const tab = ref('items')
 const categoryFilter = ref(null)
 const stations = ['MAIN', 'GRILL', 'BEVERAGE', 'DESSERT', 'TANDOOR', 'BAKERY']
 
-const itemHeaders = [
-  { title: '', key: 'image', sortable: false },
-  { title: 'Name', key: 'name' },
-  { title: 'Category', key: 'category.name' },
-  { title: 'Price', key: 'price' },
-  { title: 'Station', key: 'kitchenStation' },
-  { title: 'Availability', key: 'availability' },
-  { title: 'Actions', key: 'actions', sortable: false },
-]
+const itemsShown = ref(12)
+const visibleItems = computed(() => menu.items.slice(0, itemsShown.value))
 
 const categoryOptions = computed(() => menu.categories.map((c) => ({ title: c.name, value: c.id })))
 const subCategoryOptions = computed(() => {
@@ -236,6 +248,7 @@ function availabilityColor(a) {
 
 async function loadItems() {
   if (!selectedBranchId.value) return
+  itemsShown.value = 12
   await menu.fetchItems(selectedBranchId.value, categoryFilter.value ? { categoryId: categoryFilter.value } : {})
 }
 

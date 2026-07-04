@@ -1,42 +1,36 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Header -->
-    <v-sheet class="d-flex align-center justify-space-between mb-6 bg-transparent">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Tax Rates</h2>
-        <p class="text-body-2 text-medium-emphasis">Manage GST / VAT / Other tax rates</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Tax Rates</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Manage GST / VAT / Other tax rates</p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">Add Tax</v-btn>
-    </v-sheet>
+    </div>
 
-    <!-- Tax List -->
-    <v-card>
-      <v-data-table
-        :items="taxStore.taxes"
-        :loading="taxStore.loading"
-        :headers="headers"
-        class="elevation-1"
-      >
-        <template #item.actions="{ item }">
-          <v-btn size="small" icon="mdi-pencil-outline" variant="text" @click="editTax(item)" />
-          <v-btn
-            size="small"
-            icon="mdi-delete-outline"
-            variant="text"
-            color="error"
-            @click="deleteTax(item.id)"
-          />
-        </template>
+    <!-- Tax Cards -->
+    <v-row v-if="taxStore.taxes.length">
+      <v-col v-for="item in taxStore.taxes" :key="item.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column">
+          <div class="d-flex justify-space-between align-start mb-2">
+            <div class="font-weight-bold text-subtitle-1">{{ item.name }}</div>
+            <div>
+              <v-btn size="small" icon="mdi-pencil-outline" variant="text" @click="editTax(item)" />
+              <v-btn size="small" icon="mdi-delete-outline" variant="text" color="error" @click="deleteTax(item.id)" />
+            </div>
+          </div>
+          <v-chip size="small" variant="tonal" class="align-self-start">{{ item.type }}</v-chip>
+          <v-spacer />
+          <div class="text-h5 font-weight-bold mono-data mt-3">{{ item.rate }}%</div>
+        </div>
+      </v-col>
+    </v-row>
 
-        <template #loading>
-          <v-progress-linear indeterminate color="primary" />
-        </template>
-
-        <template #no-data>
-          <v-alert type="info" class="ma-4">No tax rates found.</v-alert>
-        </template>
-      </v-data-table>
-    </v-card>
+    <div v-else class="app-card pa-10 text-center text-medium-emphasis">
+      <div v-if="taxStore.loading"><v-progress-circular indeterminate color="primary" /></div>
+      <div v-else>No tax rates found.</div>
+    </div>
 
     <!-- Add/Edit Dialog -->
     <v-dialog v-model="dialog" max-width="500px">
@@ -81,13 +75,6 @@ import { ref, onMounted } from 'vue'
 import { useTaxStore } from '@/stores/tax'
 
 const taxStore = useTaxStore()
-
-const headers = [
-  { title: 'Name', key: 'name' },
-  { title: 'Rate (%)', key: 'rate' },
-  { title: 'Type', key: 'type' },
-  { title: 'Actions', key: 'actions', align: 'end' },
-]
 
 const dialog = ref(false)
 const formRef = ref(null)

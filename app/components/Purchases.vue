@@ -1,23 +1,40 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Purchases</h2>
-        <p class="text-body-2 text-medium-emphasis">Ingredient &amp; supply purchases from vendors</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Purchases</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Ingredient &amp; supply purchases from vendors</p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">Record Purchase</v-btn>
-    </v-sheet>
+    </div>
 
-    <v-data-table-server :headers="headers" :items="purchaseStore.purchases" :items-length="purchaseStore.total"
-      v-model:page="page" v-model:items-per-page="purchaseStore.take" :loading="purchaseStore.loading"
-      class="elevation-1 rounded-lg">
-      <template #item.vendor="{ item }">{{ item.vendor?.name }}</template>
-      <template #item.date="{ item }">{{ new Date(item.date).toLocaleDateString() }}</template>
-      <template #item.totalAmount="{ item }">{{ $formatPrice(item.totalAmount) }}</template>
-      <template #item.actions="{ item }">
-        <v-icon size="20" color="error" @click="confirmDelete(item)">mdi-delete</v-icon>
-      </template>
-    </v-data-table-server>
+    <v-row>
+      <v-col v-for="p in displayedPurchases" :key="p.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column">
+          <div class="d-flex justify-space-between align-start mb-2">
+            <div>
+              <div class="font-weight-bold">{{ p.vendor?.name || '—' }}</div>
+              <div class="text-caption text-medium-emphasis">{{ new Date(p.date).toLocaleDateString() }}</div>
+            </div>
+            <v-btn size="small" variant="text" icon="mdi-delete" color="error" @click="confirmDelete(p)" />
+          </div>
+          <div v-if="p.note" class="text-body-2 text-medium-emphasis mb-2">{{ p.note }}</div>
+          <v-spacer />
+          <div class="d-flex justify-space-between align-center mt-2">
+            <span class="text-caption text-medium-emphasis">Amount</span>
+            <span class="font-weight-bold mono-data">{{ $formatPrice(p.totalAmount) }}</span>
+          </div>
+        </div>
+      </v-col>
+
+      <v-col v-if="!displayedPurchases.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No purchases recorded yet</div>
+      </v-col>
+    </v-row>
+
+    <div v-if="displayedPurchases.length < purchaseStore.total" class="d-flex justify-center mt-6">
+      <v-btn variant="outlined" class="load-more-btn" :loading="purchaseStore.loading" @click="page += 1">View More</v-btn>
+    </div>
 
     <v-dialog v-model="dialog" max-width="480">
       <v-card>
@@ -60,14 +77,10 @@ const taxStore = useTaxStore()
 
 const page = ref(1)
 
-const headers = [
-  { title: 'Vendor', key: 'vendor' },
-  { title: 'Date', key: 'date' },
-  { title: 'Amount', key: 'amount' },
-  { title: 'Total', key: 'totalAmount' },
-  { title: 'Note', key: 'note' },
-  { title: 'Actions', key: 'actions', sortable: false },
-]
+const displayedPurchases = ref([])
+watch(() => purchaseStore.purchases, (list) => {
+  displayedPurchases.value = page.value === 1 ? list : [...displayedPurchases.value, ...list]
+})
 
 const vendorOptions = computed(() => vendorStore.vendors.map((v) => ({ title: v.name, value: v.id })))
 const taxOptions = computed(() => taxStore.taxes.map((t) => ({ title: `${t.name} (${t.rate}%)`, value: t.id })))

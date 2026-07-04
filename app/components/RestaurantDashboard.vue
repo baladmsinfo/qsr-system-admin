@@ -1,125 +1,138 @@
 <template>
-  <v-container fluid class="pa-6">
-    <div class="d-flex justify-space-between align-center mb-4">
+  <v-container fluid class="pa-4 pa-md-8">
+    <div class="d-flex flex-wrap justify-space-between align-center mb-8 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-1">Dashboard</h2>
+        <h1 class="text-h4 font-weight-bold mb-1">Dashboard</h1>
         <p class="text-body-2 text-medium-emphasis mb-0">{{ companyName }} &middot; {{ roleLabel }}</p>
       </div>
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" variant="outlined" hide-details style="max-width: 220px" />
+        density="compact" hide-details style="max-width: 220px" />
     </div>
 
-    <!-- KPI ROW -->
+    <!-- KPI ROW (Bento) -->
     <v-row class="mb-2">
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="pa-4 rounded-xl" elevation="2">
-          <div class="text-caption text-medium-emphasis">Orders Today</div>
-          <h3 class="text-h5 font-weight-bold">{{ ordersToday.length }}</h3>
-        </v-card>
+      <v-col cols="6" md="3">
+        <div class="stat-tile">
+          <div class="stat-label mb-2">Orders Today</div>
+          <div class="stat-value">{{ ordersToday.length }}</div>
+        </div>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="pa-4 rounded-xl" elevation="2">
-          <div class="text-caption text-medium-emphasis">Revenue Today</div>
-          <h3 class="text-h5 font-weight-bold">{{ $formatPrice(revenueToday) }}</h3>
-        </v-card>
+      <v-col cols="6" md="3">
+        <div class="stat-tile">
+          <div class="stat-label mb-2">Revenue Today</div>
+          <div class="stat-value">{{ $formatPrice(revenueToday) }}</div>
+        </div>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="pa-4 rounded-xl" elevation="2">
-          <div class="text-caption text-medium-emphasis">Active Orders</div>
-          <h3 class="text-h5 font-weight-bold">{{ activeOrders.length }}</h3>
-        </v-card>
+      <v-col cols="6" md="3">
+        <div class="stat-tile">
+          <div class="stat-label mb-2">Active Orders</div>
+          <div class="stat-value">{{ activeOrders.length }}</div>
+        </div>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
-        <v-card class="pa-4 rounded-xl" elevation="2">
-          <div class="text-caption text-medium-emphasis">Awaiting Billing</div>
-          <h3 class="text-h5 font-weight-bold">{{ servedOrders.length }}</h3>
-        </v-card>
+      <v-col cols="6" md="3">
+        <div class="stat-tile">
+          <div class="stat-label mb-2">Awaiting Billing</div>
+          <div class="stat-value">{{ servedOrders.length }}</div>
+        </div>
       </v-col>
     </v-row>
 
     <!-- RECENT ORDERS -->
-    <v-card class="rounded-xl mb-6" elevation="1">
-      <v-card-title class="text-subtitle-1 font-weight-bold">Recent Orders</v-card-title>
-      <v-divider />
-      <v-list density="compact">
-        <v-list-item v-for="order in recentOrders" :key="order.id">
-          <v-list-item-title>
-            {{ order.table?.tableNo || 'Takeaway' }} &middot; {{ $formatPrice(order.totalAmount) }}
-          </v-list-item-title>
-          <template #append>
-            <v-chip size="small" variant="tonal">{{ order.status }}</v-chip>
-          </template>
-        </v-list-item>
-        <v-list-item v-if="!recentOrders.length">
-          <v-list-item-title class="text-medium-emphasis">No orders yet today</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <div class="d-flex justify-space-between align-center mt-10 mb-5">
+      <h2 class="text-h6 font-weight-bold mb-0">Recent Orders</h2>
+      <NuxtLink to="/admin/orders" class="text-body-2 font-weight-medium" style="color: rgb(var(--v-theme-primary)); text-decoration: none">
+        View All &rarr;
+      </NuxtLink>
+    </div>
+
+    <v-row>
+      <v-col v-for="order in recentOrders" :key="order.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column ga-3">
+          <div class="d-flex justify-space-between align-start">
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">{{ order.table?.tableNo || 'Takeaway' }}</div>
+              <div class="text-caption text-medium-emphasis mono-data">#{{ order.id.slice(0, 8).toUpperCase() }}</div>
+            </div>
+            <v-chip size="small" :color="statusColor(order.status)" variant="tonal" class="text-uppercase font-weight-bold" style="font-size: 10px">
+              {{ order.status }}
+            </v-chip>
+          </div>
+          <div class="d-flex justify-space-between align-center mt-auto">
+            <span class="text-h6 font-weight-bold mono-data">{{ $formatPrice(order.totalAmount) }}</span>
+          </div>
+        </div>
+      </v-col>
+
+      <v-col v-if="!recentOrders.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No orders yet today</div>
+      </v-col>
+    </v-row>
 
     <!-- ACCOUNTING CHARTS (SUPERADMIN / BRANCHADMIN / ACCOUNTANT) -->
     <template v-if="canSeeAccounting">
+      <h2 class="text-h6 font-weight-bold mt-10 mb-5">Cashflow Overview</h2>
       <v-row>
         <v-col cols="12">
-          <v-card elevation="2" class="pa-4">
+          <div class="app-card pa-5">
             <div class="d-flex justify-space-between align-center mb-4">
-              <h3 class="text-h6 font-weight-bold">Cashflow Overview</h3>
+              <span class="text-subtitle-1 font-weight-bold">Payments vs Purchases</span>
               <v-select v-model="periods.cashflow" :items="periodOptions" density="compact" hide-details
-                variant="outlined" style="max-width: 160px" @update:modelValue="loadCashflow" />
+                style="max-width: 160px" @update:modelValue="loadCashflow" />
             </div>
             <client-only>
               <apexchart type="line" height="320" :options="chartOptions" :series="cashflowSeries" />
             </client-only>
-          </v-card>
+          </div>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-card elevation="2" class="pa-4">
+          <div class="app-card pa-5">
             <div class="d-flex justify-space-between align-center mb-3">
-              <h3 class="text-h6 font-weight-bold">Sales</h3>
+              <span class="text-subtitle-1 font-weight-bold">Sales</span>
               <v-select v-model="periods.sales" :items="periodOptions" density="compact" hide-details
-                variant="outlined" style="max-width: 140px" @update:modelValue="loadSales" />
+                style="max-width: 140px" @update:modelValue="loadSales" />
             </div>
-            <div class="text-h5 font-weight-bold">{{ $formatPrice(dashboard.sales.paid) }}</div>
+            <div class="stat-value" style="font-size: 26px">{{ $formatPrice(dashboard.sales.paid) }}</div>
             <div class="text-caption text-medium-emphasis">Unpaid: {{ $formatPrice(dashboard.sales.unpaid) }}</div>
-          </v-card>
+          </div>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-card elevation="2" class="pa-4">
+          <div class="app-card pa-5">
             <div class="d-flex justify-space-between align-center mb-3">
-              <h3 class="text-h6 font-weight-bold">Purchases</h3>
+              <span class="text-subtitle-1 font-weight-bold">Purchases</span>
               <v-select v-model="periods.purchases" :items="periodOptions" density="compact" hide-details
-                variant="outlined" style="max-width: 140px" @update:modelValue="loadPurchases" />
+                style="max-width: 140px" @update:modelValue="loadPurchases" />
             </div>
-            <div class="text-h5 font-weight-bold">{{ $formatPrice(dashboard.purchases.total || 0) }}</div>
-          </v-card>
+            <div class="stat-value" style="font-size: 26px">{{ $formatPrice(dashboard.purchases.total || 0) }}</div>
+          </div>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-card elevation="2" class="pa-4" height="450">
+          <div class="app-card pa-5" style="height: 450px">
             <div class="d-flex justify-space-between align-center mb-4">
-              <h3 class="text-h6 font-weight-bold">Profit &amp; Loss</h3>
+              <span class="text-subtitle-1 font-weight-bold">Profit &amp; Loss</span>
               <v-select v-model="periods.profitloss" :items="periodOptions" density="compact" hide-details
-                variant="outlined" style="max-width: 160px" @update:modelValue="loadProfitLoss" />
+                style="max-width: 160px" @update:modelValue="loadProfitLoss" />
             </div>
             <client-only>
               <apexchart type="bar" height="320" :options="profitLossOptions" :series="profitLossSeries" />
             </client-only>
-          </v-card>
+          </div>
         </v-col>
 
         <v-col cols="12" md="6">
-          <v-card elevation="2" class="pa-4" height="450">
+          <div class="app-card pa-5" style="height: 450px">
             <div class="d-flex justify-space-between align-center mb-4">
-              <h3 class="text-h6 font-weight-bold">Expense Breakdown</h3>
+              <span class="text-subtitle-1 font-weight-bold">Expense Breakdown</span>
               <v-select v-model="periods.expense" :items="periodOptions" density="compact" hide-details
-                variant="outlined" style="max-width: 140px" @update:modelValue="loadExpenseChart" />
+                style="max-width: 140px" @update:modelValue="loadExpenseChart" />
             </div>
             <client-only>
               <apexchart type="donut" height="300" :options="expenseChartOptions" :series="expenseSeries" />
             </client-only>
             <div class="text-center mt-2 text-body-2">Total: <b>{{ $formatPrice(expense.chartTotal || 0) }}</b></div>
-          </v-card>
+          </div>
         </v-col>
       </v-row>
     </template>
@@ -160,6 +173,13 @@ const servedOrders = computed(() => orders.orders.filter((o) => o.status === 'SE
 const revenueToday = computed(() =>
   ordersToday.value.filter((o) => o.status === 'COMPLETED').reduce((s, o) => s + o.totalAmount, 0)
 )
+
+function statusColor(status) {
+  return {
+    PLACED: 'grey', ACCEPTED: 'info', PREPARING: 'warning', READY: 'success',
+    SERVED: 'primary', COMPLETED: 'success', CANCELLED: 'error',
+  }[status] || 'grey'
+}
 
 const periods = ref({ cashflow: 'thisMonth', sales: 'thisYear', purchases: 'thisYear', profitloss: 'thisYear', expense: 'thisYear' })
 const periodOptions = [
@@ -207,7 +227,7 @@ const chartOptions = computed(() => {
   return {
     chart: { toolbar: { show: false }, zoom: { enabled: false } },
     stroke: { curve: 'smooth', width: 3 },
-    colors: ['#2196F3', '#E91E63'],
+    colors: ['#4A3B78', '#C79A56'],
     xaxis: { categories: timeline?.labels ?? [] },
     legend: { position: 'top' },
     dataLabels: { enabled: false },

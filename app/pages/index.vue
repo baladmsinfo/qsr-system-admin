@@ -1,44 +1,47 @@
 <template>
-  <v-container fluid class="d-flex align-center bg-background justify-center">
-    <v-row class="w-100" align="center" justify="center">
-      <v-col cols="12" md="6" class="d-flex flex-column bg-background align-center justify-center"
-        :style="{ color: 'white', minHeight: '100vh' }">
-        <v-img src="../assets/banner.png" alt="Billing Illustration" width="100%" height="100vh" cover
-          class="d-flex align-center justify-center">
-          <div class="d-flex flex-column align-center justify-center text-center ma-4 px-6"
-            style="background-color: rgba(0, 0, 0, 0.4); border-radius: 16px; padding: 24px;">
-            <h2 class="font-weight-bold text-h5 mb-2">Welcome Back</h2>
-            <p class="text-body-2">
-              Log in to manage your menu, orders, kitchen and billing.
-            </p>
+  <v-container fluid class="pa-0 fill-height login-page">
+    <v-row no-gutters class="fill-height">
+      <!-- Brand Panel -->
+      <v-col cols="12" md="5" class="d-none d-md-flex flex-column justify-space-between brand-panel pa-12">
+        <div class="d-flex align-center ga-3">
+          <div class="brand-mark-lg d-flex align-center justify-center">
+            <v-icon color="white" size="26">mdi-silverware-fork-knife</v-icon>
           </div>
-        </v-img>
+          <span class="text-h6 font-weight-bold text-white">Bucksbox</span>
+        </div>
+
+        <div>
+          <h1 class="text-h3 font-weight-bold text-white mb-4" style="max-width: 480px; letter-spacing: -0.02em">
+            Run your entire restaurant from one calm, organized place.
+          </h1>
+          <p class="text-body-1 text-white" style="opacity: 0.75; max-width: 420px">
+            Menu, tables, live orders, kitchen display and billing &mdash; all in a single platform built for modern restaurants.
+          </p>
+        </div>
+
+        <p class="text-caption text-white" style="opacity: 0.5">© {{ new Date().getFullYear() }} Bucksbox. All rights reserved.</p>
       </v-col>
 
-      <!-- Right Section -->
-      <v-col cols="12" md="6" class="d-flex flex-column justify-center pa-10">
-        <div class="pa-10 ma-10">
-          <h2 class="font-weight-bold mb-4 text-primary">Login</h2>
+      <!-- Login Form -->
+      <v-col cols="12" md="7" class="d-flex align-center justify-center pa-6 pa-md-16">
+        <div style="width: 100%; max-width: 400px">
+          <h2 class="text-h4 font-weight-bold mb-2">Welcome back</h2>
+          <p class="text-body-2 text-medium-emphasis mb-8">
+            Log in to manage your menu, orders, kitchen and billing.
+          </p>
 
           <v-form @submit.prevent="handleLogin">
-            <v-text-field v-model="email" label="Email" prepend-inner-icon="mdi-account" variant="outlined"
-              density="comfortable" color="primary" class="mb-3" />
-            <v-text-field v-model="password" label="Password" prepend-inner-icon="mdi-lock"
+            <v-text-field v-model="email" label="Email" prepend-inner-icon="mdi-email-outline" class="mb-2" />
+            <v-text-field v-model="password" label="Password" prepend-inner-icon="mdi-lock-outline"
               :type="showPassword ? 'text' : 'password'" :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-              @click:append-inner="showPassword = !showPassword" variant="outlined" density="comfortable"
-              color="primary" class="mb-2" />
+              @click:append-inner="showPassword = !showPassword" class="mb-2" />
 
-            <!-- <div class="d-flex justify-end mb-4">
-              <a href="#" class="text-caption text-primary">Forgot Password?</a>
-            </div> -->
-
-            <v-btn block color="primary" type="submit" :loading="loading" class="text-uppercase mb-2 font-weight-bold">
+            <v-btn block color="primary" size="large" type="submit" :loading="loading" class="mt-4 mb-3">
               Login
             </v-btn>
 
-            <v-btn block variant="outlined" color="primary" class="text-uppercase font-weight-bold"
-              @click="goToRegister">
-              Sign Up
+            <v-btn block variant="outlined" color="primary" size="large" @click="goToRegister">
+              Create a Restaurant Account
             </v-btn>
           </v-form>
         </div>
@@ -51,6 +54,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const email = ref('')
 const password = ref('')
@@ -58,18 +62,17 @@ const showPassword = ref(false)
 const loading = ref(false)
 const router = useRouter()
 const auth = useAuthStore()
+const toast = useToast()
 
 async function handleLogin() {
   loading.value = true
   const res = await auth.login({ email: email.value, password: password.value })
   loading.value = false
 
-  console.log("Login Response:", res);
-
   if (res.token) {
     router.push('/admin/dashboard')
   } else {
-    alert('Login failed! Check your credentials.')
+    toast.error('Login failed. Please check your credentials.')
   }
 }
 
@@ -77,3 +80,18 @@ function goToRegister() {
   router.push('/register')
 }
 </script>
+
+<style scoped>
+.login-page {
+  background: #fff;
+}
+.brand-panel {
+  background: linear-gradient(160deg, #4A3B78 0%, #362A5C 100%);
+}
+.brand-mark-lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+}
+</style>

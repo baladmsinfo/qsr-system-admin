@@ -1,36 +1,36 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">POS / Billing</h2>
-        <p class="text-body-2 text-medium-emphasis">Bill orders once they've been served</p>
+        <h1 class="text-h5 font-weight-bold mb-0">POS / Billing</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Bill orders once they've been served</p>
       </div>
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" variant="outlined" hide-details style="max-width: 220px" />
-    </v-sheet>
+        density="compact" hide-details style="max-width: 220px" />
+    </div>
 
     <v-row>
       <v-col cols="12" md="5">
-        <v-card class="rounded-lg" elevation="1">
-          <v-card-title class="text-subtitle-1 font-weight-bold">Awaiting Bill</v-card-title>
-          <v-divider />
-          <v-list>
-            <v-list-item v-for="order in pos.pendingBills" :key="order.id" :active="selectedOrderId === order.id"
-              @click="selectOrder(order.id)">
-              <v-list-item-title>{{ order.table?.tableNo || 'Takeaway' }}</v-list-item-title>
-              <v-list-item-subtitle>
-                {{ order.orderItems.length }} items &middot; {{ $formatPrice(order.totalAmount) }}
-              </v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item v-if="!pos.pendingBills.length">
-              <v-list-item-title class="text-medium-emphasis">No orders awaiting billing</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card>
+        <div class="text-subtitle-2 font-weight-bold text-uppercase mb-3 px-1" style="letter-spacing: 0.04em; color: #5B5566">
+          Awaiting Bill
+        </div>
+        <div v-for="order in pos.pendingBills" :key="order.id" class="app-card mb-3"
+          :class="{ 'app-card--active': selectedOrderId === order.id }" style="cursor: pointer" @click="selectOrder(order.id)">
+          <div class="pa-4 d-flex justify-space-between align-center">
+            <div>
+              <div class="font-weight-bold">{{ order.table?.tableNo || 'Takeaway' }}</div>
+              <div class="text-caption text-medium-emphasis">{{ order.orderItems.length }} items</div>
+            </div>
+            <span class="font-weight-bold mono-data">{{ $formatPrice(order.totalAmount) }}</span>
+          </div>
+        </div>
+        <div v-if="!pos.pendingBills.length" class="app-card pa-8 text-center text-medium-emphasis">
+          No orders awaiting billing
+        </div>
       </v-col>
 
       <v-col cols="12" md="7">
-        <v-card v-if="pos.currentBill" class="rounded-lg pa-4" elevation="2">
+        <div v-if="pos.currentBill" class="app-card pa-5">
           <div class="d-flex justify-space-between align-center mb-3">
             <h3 class="text-h6 font-weight-bold">{{ pos.currentBill.table?.tableNo || 'Takeaway' }}</h3>
             <v-chip size="small" variant="tonal">{{ pos.currentBill.status }}</v-chip>
@@ -52,7 +52,7 @@
             <span>Tax</span><span>{{ $formatPrice(pos.currentBill.taxAmount) }}</span>
           </div>
           <div class="d-flex justify-space-between text-h6 font-weight-bold mt-2">
-            <span>Total</span><span>{{ $formatPrice(pos.currentBill.totalAmount) }}</span>
+            <span>Total</span><span class="mono-data">{{ $formatPrice(pos.currentBill.totalAmount) }}</span>
           </div>
 
           <v-divider class="my-4" />
@@ -62,11 +62,11 @@
           <v-btn block size="large" color="primary" class="mt-2" :loading="pos.loading" @click="pay">
             Collect {{ $formatPrice(pos.currentBill.totalAmount) }}
           </v-btn>
-        </v-card>
+        </div>
 
-        <v-card v-else class="rounded-lg pa-10 text-center text-medium-emphasis" elevation="0">
+        <div v-else class="app-card pa-10 text-center text-medium-emphasis">
           Select an order to view its bill
-        </v-card>
+        </div>
       </v-col>
     </v-row>
   </v-container>

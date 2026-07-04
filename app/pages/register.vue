@@ -1,15 +1,11 @@
 <template>
   <v-container
     fluid
-    class="d-flex justify-center align-center py-10 bg-grey-lighten-4"
-    style="
-      min-height: 100vh;
-      background: linear-gradient(135deg, #e0e7ff, #fdf2f8);
-    "
+    class="d-flex justify-center align-center py-10 register-page"
+    style="min-height: 100vh;"
   >
     <v-card
-      elevation="12"
-      class="pa-10 rounded-xxl glass-card"
+      class="pa-6 pa-md-10 register-card"
       max-width="950"
       width="100%"
     >
@@ -29,7 +25,7 @@
           <span>Company Login</span>
         </div>
 
-        <v-sheet class="glass-inner pa-5 rounded-lg mb-8">
+        <v-sheet class="section-card pa-5 mb-8">
           <v-row dense>
             <v-col cols="12" md="6">
               <v-text-field
@@ -90,7 +86,7 @@
           <span>Main Branch Login</span>
         </div>
 
-        <v-sheet class="glass-inner pa-5 rounded-lg mb-8">
+        <v-sheet class="section-card pa-5 mb-8">
           <v-row dense>
             <v-col cols="12" md="6">
               <v-text-field
@@ -141,7 +137,7 @@
           <span>Company Details</span>
         </div>
 
-        <v-sheet class="glass-inner pa-5 rounded-lg">
+        <v-sheet class="section-card pa-5">
           <v-row dense>
             <v-col cols="12" md="6">
               <v-text-field
@@ -260,7 +256,8 @@
         <v-btn
           block
           color="primary"
-          class="mt-10 py-4 text-body-1 font-weight-bold rounded-xl"
+          size="large"
+          class="mt-10"
           @click="submit"
           :loading="loading"
         >
@@ -440,23 +437,28 @@ const submit = async () => {
 </script>
 
 <style scoped>
-.glass-card {
-  backdrop-filter: blur(18px);
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.32);
+.register-page {
+  background: #FAF9FC;
 }
 
-.glass-inner {
-  backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+.register-card {
+  border-radius: 20px;
+  border: 1px solid #EAE6F2;
+  box-shadow: 0 24px 48px -16px rgba(74, 59, 120, 0.12);
+}
+
+.section-card {
+  background: #FBFAFD;
+  border: 1px solid #EAE6F2;
+  border-radius: 14px;
 }
 
 .section-title {
   display: flex;
   align-items: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
   font-size: 1.05rem;
-  opacity: 0.85;
+  color: #4A3B78;
 }
 </style>

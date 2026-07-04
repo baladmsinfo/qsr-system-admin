@@ -1,29 +1,25 @@
 <template>
-  <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+  <v-container fluid class="pa-4 pa-md-8">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Live Orders</h2>
-        <p class="text-body-2 text-medium-emphasis">Real-time dine-in order monitoring</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Live Orders</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Real-time dine-in order monitoring</p>
       </div>
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" variant="outlined" hide-details style="max-width: 220px" />
-    </v-sheet>
+        density="compact" hide-details style="max-width: 220px" />
+    </div>
 
-    <v-tabs v-model="statusFilter" class="mb-4">
-      <v-tab value="">All</v-tab>
-      <v-tab value="PLACED">Placed</v-tab>
-      <v-tab value="ACCEPTED">Accepted</v-tab>
-      <v-tab value="PREPARING">Preparing</v-tab>
-      <v-tab value="READY">Ready</v-tab>
-      <v-tab value="SERVED">Served</v-tab>
-      <v-tab value="COMPLETED">Completed</v-tab>
-      <v-tab value="CANCELLED">Cancelled</v-tab>
-    </v-tabs>
+    <div class="d-flex flex-wrap ga-2 mb-6">
+      <v-chip v-for="tab in statusTabs" :key="tab.value" :color="statusFilter === tab.value ? 'primary' : undefined"
+        :variant="statusFilter === tab.value ? 'flat' : 'tonal'" class="font-weight-medium" @click="statusFilter = tab.value">
+        {{ tab.label }}
+      </v-chip>
+    </div>
 
     <v-row>
       <v-col v-for="order in filteredOrders" :key="order.id" cols="12" sm="6" md="4">
-        <v-card class="rounded-lg" elevation="2">
-          <v-card-text>
+        <div class="app-card">
+          <div class="pa-5">
             <div class="d-flex justify-space-between align-start mb-2">
               <div>
                 <div class="font-weight-bold">{{ order.table?.tableNo || 'Takeaway' }}</div>
@@ -49,9 +45,9 @@
             <div v-if="waitingMessage(order)" class="text-caption text-medium-emphasis mt-2 d-flex align-center ga-1">
               <v-icon size="14">mdi-clock-outline</v-icon>{{ waitingMessage(order) }}
             </div>
-          </v-card-text>
+          </div>
 
-          <v-card-actions>
+          <div class="d-flex align-center px-5 pb-4">
             <v-btn v-if="canCancel(order)" size="small" color="error" variant="text" @click="updateStatus(order, 'CANCELLED')">
               Cancel
             </v-btn>
@@ -60,7 +56,7 @@
               @click="updateStatus(order, primaryAction(order).status)">
               {{ primaryAction(order).label }}
             </v-btn>
-          </v-card-actions>
+          </div>
 
           <v-expansion-panels v-if="order.auditLogs?.length" variant="accordion" flat>
             <v-expansion-panel>
@@ -80,7 +76,7 @@
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
-        </v-card>
+        </div>
       </v-col>
     </v-row>
 
@@ -105,6 +101,17 @@ const { $socket } = useNuxtApp()
 
 const statusFilter = ref('')
 const busyId = ref(null)
+
+const statusTabs = [
+  { value: '', label: 'All' },
+  { value: 'PLACED', label: 'Placed' },
+  { value: 'ACCEPTED', label: 'Accepted' },
+  { value: 'PREPARING', label: 'Preparing' },
+  { value: 'READY', label: 'Ready' },
+  { value: 'SERVED', label: 'Served' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+]
 
 // Mirrors the backend's ORDER_TRANSITION_ROLES in orderService.js - kept in sync
 // deliberately so the UI never offers a button the server would reject, but the

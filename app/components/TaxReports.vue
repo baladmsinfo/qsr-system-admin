@@ -1,83 +1,62 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card elevation="2" class="rounded-lg">
-
-      <!-- 🔹 Header -->
-      <v-card-title class="text-h6 d-flex align-center justify-space-between">
-        <div>
-          Tax Report
-          <p class="text-body-2 text-medium-emphasis mt-1 mb-0">
-            View order-wise tax breakup
-          </p>
-        </div>
-
-        <!-- 🔹 Date Filters -->
-        <div class="d-flex align-center ga-2">
-          <v-text-field
-            v-model="startDate"
-            type="date"
-            label="Start Date"
-            density="compact"
-            hide-details
-            variant="outlined"
-            style="max-width: 160px"
-          />
-          <v-text-field
-            v-model="endDate"
-            type="date"
-            label="End Date"
-            density="compact"
-            hide-details
-            variant="outlined"
-            style="max-width: 160px"
-          />
-          <v-btn color="primary" variant="flat"
-                 @click="loadTaxReport"
-                 :disabled="reportStore.loading">
-            APPLY FILTER
-          </v-btn>
-        </div>
-      </v-card-title>
-
-      <v-divider />
-
-      <!-- 📊 Tax Report Body -->
-      <div v-if="report?.length" class="pa-4">
-        <table class="pl-table">
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Date</th>
-              <th>Customer</th>
-              <th class="text-end">Tax Type</th>
-              <th class="text-end">Rate %</th>
-              <th class="text-end">Tax Amount</th>
-              <th class="text-end">Order Total</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <template v-for="order in report" :key="order.orderId">
-              <tr v-for="tx in order.taxes" :key="tx.taxName + order.orderId">
-                <td>{{ order.orderId.slice(0, 8) }}</td>
-                <td>{{ formatDate(order.date) }}</td>
-                <td>{{ order.customerName }}</td>
-                <td class="text-end">{{ tx.taxType }}</td>
-                <td class="text-end">{{ tx.rate }}%</td>
-                <td class="text-end">{{ $formatPrice(tx.amount) }}</td>
-                <td class="text-end">{{ $formatPrice(order.totalAmount) }}</td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+    <!-- 🔹 Header -->
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+      <div>
+        <h1 class="text-h5 font-weight-bold mb-0">Tax Report</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">
+          View order-wise tax breakup
+        </p>
       </div>
 
-      <!-- ℹ️ Empty State -->
-      <v-alert v-else type="info" variant="tonal" border="start" class="ma-4">
-        No Tax Report found.
-      </v-alert>
+      <!-- 🔹 Date Filters -->
+      <div class="d-flex align-center flex-wrap ga-2">
+        <v-text-field
+          v-model="startDate"
+          type="date"
+          label="Start Date"
+          density="compact"
+          hide-details
+          style="max-width: 160px"
+        />
+        <v-text-field
+          v-model="endDate"
+          type="date"
+          label="End Date"
+          density="compact"
+          hide-details
+          style="max-width: 160px"
+        />
+        <v-btn color="primary" @click="loadTaxReport" :disabled="reportStore.loading">
+          Apply Filter
+        </v-btn>
+      </div>
+    </div>
 
-    </v-card>
+    <!-- 📊 Tax Report Cards -->
+    <v-row v-if="report?.length">
+      <v-col v-for="order in report" :key="order.orderId" cols="12" md="6">
+        <div class="app-card pa-5 h-100">
+          <div class="d-flex justify-space-between align-start mb-2">
+            <div>
+              <div class="font-weight-bold mono-data">#{{ order.orderId.slice(0, 8).toUpperCase() }}</div>
+              <div class="text-caption text-medium-emphasis">{{ formatDate(order.date) }} &middot; {{ order.customerName }}</div>
+            </div>
+            <span class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(order.totalAmount) }}</span>
+          </div>
+          <v-divider class="my-2" />
+          <div v-for="tx in order.taxes" :key="tx.taxName" class="d-flex justify-space-between text-body-2 py-1">
+            <span>{{ tx.taxType }} ({{ tx.rate }}%)</span>
+            <span class="mono-data">{{ $formatPrice(tx.amount) }}</span>
+          </div>
+        </div>
+      </v-col>
+    </v-row>
+
+    <!-- ℹ️ Empty State -->
+    <div v-else class="app-card pa-10 text-center text-medium-emphasis">
+      No Tax Report found.
+    </div>
   </v-container>
 </template>
 
@@ -104,26 +83,3 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
-.pl-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.pl-table th {
-  background: #fafafa;
-  font-weight: 600;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.pl-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.text-end {
-  text-align: right;
-}
-</style>

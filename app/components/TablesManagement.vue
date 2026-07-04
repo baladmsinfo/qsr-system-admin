@@ -1,20 +1,20 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Tables &amp; QR Codes</h2>
-        <p class="text-body-2 text-medium-emphasis">Each table has its own QR - customers scan it to open the menu</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Tables &amp; QR Codes</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Each table has its own QR - customers scan it to open the menu</p>
       </div>
       <div class="d-flex ga-3 align-center">
         <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-          density="compact" variant="outlined" hide-details style="max-width: 220px" />
+          density="compact" hide-details style="max-width: 220px" />
         <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">Add Table</v-btn>
       </div>
-    </v-sheet>
+    </div>
 
     <v-row>
       <v-col v-for="table in tableStore.tables" :key="table.id" cols="12" sm="6" md="4" lg="3">
-        <v-card class="pa-4 rounded-xl text-center" elevation="2">
+        <div class="app-card pa-4 text-center">
           <div class="d-flex justify-space-between align-start mb-2">
             <v-chip size="small" :color="table.active ? 'success' : 'grey'" variant="tonal">
               {{ table.active ? 'Active' : 'Inactive' }}
@@ -24,7 +24,7 @@
 
           <h3 class="text-h6 font-weight-bold mb-3">{{ table.tableNo }}</h3>
 
-          <v-img :src="qrImages[table.id]" width="160" height="160" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #eee" />
+          <v-img :src="qrImages[table.id]" width="160" height="160" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #EAE6F2" />
 
           <div class="d-flex justify-center ga-2">
             <v-btn size="small" variant="tonal" icon="mdi-pencil" @click="openDialog(table)" />
@@ -32,7 +32,11 @@
             <v-btn size="small" variant="tonal" icon="mdi-printer" @click="printQr(table)" />
             <v-btn size="small" variant="tonal" color="error" icon="mdi-delete" @click="confirmDelete(table)" />
           </div>
-        </v-card>
+        </div>
+      </v-col>
+
+      <v-col v-if="!tableStore.tables.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No tables yet</div>
       </v-col>
     </v-row>
 

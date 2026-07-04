@@ -2,8 +2,11 @@
   <div class="pa-4">
 
     <!-- HEADER -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <h2 class="text-h5 font-weight-bold">Staff &amp; Users</h2>
+    <div class="app-header-bar d-flex align-center justify-space-between mb-6 px-5 py-4">
+      <div>
+        <h1 class="text-h5 font-weight-bold mb-0">Staff &amp; Users</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Manage branch staff accounts and roles</p>
+      </div>
     </div>
 
     <!-- SEARCH -->
@@ -12,107 +15,61 @@
       label="Search branches..."
       prepend-inner-icon="mdi-magnify"
       clearable
-      @input="fetch"
       class="mb-6"
       density="comfortable"
-      variant="outlined"
     />
 
-    <!-- MAIN TABLE -->
-    <v-data-table-server
-      :headers="headers"
-      :items="branches"
-      :items-length="meta.total"
-      :loading="loading"
-      :page="page"
-      :items-per-page="limit"
-      item-value="id"
-      @update:page="updatePage"
-      @update:items-per-page="updateLimit"
-      class="elevation-1 rounded-lg"
-      density="comfortable"
-      show-expand
-    >
-
-      <!-- Address Column -->
-      <template #item.address="{ item }">
-        <div class="text-body-2">
-          {{ item.addressLine1 }},
-          <span v-if="item.addressLine2">{{ item.addressLine2 }},</span>
-          <span v-if="item.addressLine3">{{ item.addressLine3 }},</span><br>
-          {{ item.city }}, {{ item.state }} - {{ item.pincode }}
+    <!-- BRANCH CARDS -->
+    <div v-for="item in branches" :key="item.id" class="app-card mb-4">
+      <div class="pa-5 d-flex flex-wrap justify-space-between align-center ga-3">
+        <div>
+          <div class="font-weight-bold text-subtitle-1">{{ item.name }}</div>
+          <div class="text-body-2 text-medium-emphasis">
+            {{ item.addressLine1 }}<span v-if="item.addressLine2">, {{ item.addressLine2 }}</span>,
+            {{ item.city }}, {{ item.state }} - {{ item.pincode }}
+          </div>
         </div>
-      </template>
+        <div class="d-flex align-center ga-1">
+          <v-btn size="small" variant="tonal" :prepend-icon="expanded[item.id] ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+            @click="toggleExpand(item.id)">
+            {{ item.users.length }} Staff
+          </v-btn>
+          <v-btn size="small" variant="text" icon="mdi-account-plus" color="primary" @click="openCreateUserDialog(item.id)" />
+          <v-btn size="small" variant="text" icon="mdi-delete" color="error" @click="openDeleteDialog(item)" />
+        </div>
+      </div>
 
-      <!-- Actions -->
-      <template #item.actions="{ item }">
-        <v-btn
-          size="small"
-          variant="text"
-          icon="mdi-account-plus"
-          color="primary"
-          @click="openCreateUserDialog(item.id)"
-        />
+      <v-expand-transition>
+        <div v-if="expanded[item.id]" class="px-5 pb-5">
+          <v-divider class="mb-4" />
+          <div class="text-subtitle-2 mb-3 font-weight-bold">Branch Staff</div>
 
-        <v-btn
-          size="small"
-          variant="text"
-          icon="mdi-delete"
-          color="error"
-          @click="openDeleteDialog(item)"
-        />
-      </template>
+          <div v-if="!item.users.length" class="text-center text-medium-emphasis py-4">No users found</div>
 
-      <!-- EXPANDABLE ROW — USERS TABLE -->
-      <template #expanded-row="{ columns, item }">
-        <tr>
-          <td :colspan="columns.length" class="bg-grey-lighten-4 pa-4">
+          <v-row v-else dense>
+            <v-col v-for="u in item.users" :key="u.id" cols="12" md="6">
+              <div class="d-flex justify-space-between align-center pa-3" style="background: #FBFAFD; border: 1px solid #EAE6F2; border-radius: 12px">
+                <div>
+                  <div class="font-weight-medium">{{ u.name }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ u.email }}</div>
+                  <div class="mt-1 d-flex align-center ga-2">
+                    <v-chip size="x-small" variant="tonal">{{ u.role }}</v-chip>
+                    <span class="text-caption text-medium-emphasis">{{ new Date(u.createdAt).toLocaleDateString() }}</span>
+                  </div>
+                </div>
+                <v-btn icon="mdi-delete" color="error" variant="text" size="small" @click="deleteUser(item.id, u.id)" />
+              </div>
+            </v-col>
+          </v-row>
+        </div>
+      </v-expand-transition>
+    </div>
 
-            <div class="text-subtitle-2 mb-3 font-weight-bold">
-              Branch Staff
-            </div>
+    <div v-if="!branches.length" class="app-card pa-10 text-center text-medium-emphasis">No branches found</div>
 
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th class="text-left">Name</th>
-                  <th class="text-left">Email</th>
-                  <th class="text-left">Role</th>
-                  <th class="text-left">Created</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-
-                <tr v-if="item.users.length === 0">
-                  <td colspan="5" class="text-center text-grey">
-                    No users found
-                  </td>
-                </tr>
-
-                <tr v-for="u in item.users" :key="u.id">
-                  <td>{{ u.name }}</td>
-                  <td>{{ u.email }}</td>
-                  <td><v-chip size="x-small" variant="tonal">{{ u.role }}</v-chip></td>
-                  <td>{{ new Date(u.createdAt).toLocaleDateString() }}</td>
-                  <td class="pa-3">
-                    <v-btn
-                      icon="mdi-delete"
-                      color="red"
-                      size="small"
-                      @click="deleteUser(item.id, u.id)"
-                    />
-                  </td>
-                </tr>
-
-              </tbody>
-            </v-table>
-
-          </td>
-        </tr>
-      </template>
-
-    </v-data-table-server>
+    <div v-if="branches.length < meta.total" class="d-flex justify-center mt-6">
+      <v-btn variant="outlined" class="load-more-btn" :loading="loading" @click="loadMore">View More</v-btn>
+    </div>
 
     <!-- ADD USER DIALOG -->
     <v-dialog v-model="createDialog" max-width="400">
@@ -174,44 +131,43 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useCompanyStore } from "@/stores/company";
 
 const store = useCompanyStore();
-
-/* TABLE HEADERS */
-const headers = [
-  { title: "", key: "data-table-expand" },
-  { title: "Branch Name", key: "name" },
-  { title: "Address", key: "address" },
-  { title: "City", key: "city" },
-  { title: "State", key: "state" },
-  { title: "Actions", key: "actions", sortable: false }
-];
 
 /* STATE */
 const search = ref("");
 const page = ref(1);
 const limit = ref(10);
 
-const branches = computed(() => store.branches);
+const displayedBranches = ref([]);
+const branches = computed(() => displayedBranches.value);
 const meta = computed(() => store.meta);
 const loading = computed(() => store.loading);
 
+const expanded = reactive({});
+function toggleExpand(id) {
+  expanded[id] = !expanded[id];
+}
+
 /* FETCH */
-function fetch() {
-  store.fetchBranchesWithUsers(page.value, limit.value, search.value);
+async function fetch() {
+  await store.fetchBranchesWithUsers(page.value, limit.value, search.value);
+  displayedBranches.value = page.value === 1 ? store.branches : [...displayedBranches.value, ...store.branches];
 }
 
-function updatePage(p) {
-  page.value = p;
+function resetAndFetch() {
+  page.value = 1;
   fetch();
 }
 
-function updateLimit(l) {
-  limit.value = l;
+function loadMore() {
+  page.value += 1;
   fetch();
 }
+
+watch(search, resetAndFetch);
 
 /* USER CREATION */
 const createDialog = ref(false);
@@ -228,14 +184,14 @@ const openCreateUserDialog = (branchId) => {
 const createUser = async () => {
   await store.createBranchUser(selectedBranchId.value, newUser.value);
   createDialog.value = false;
-  fetch();
+  resetAndFetch();
 };
 
 /* DELETE BRANCH USER */
 const deleteUser = async (branchId, userId) => {
   if (confirm("Are you sure you want to delete this user?")) {
     await store.deleteBranchUser(branchId, userId);
-    fetch();
+    resetAndFetch();
   }
 };
 
@@ -251,7 +207,7 @@ function openDeleteDialog(branch) {
 async function deleteBranchConfirm() {
   await store.deleteBranch(branchToDelete.value.id);
   deleteDialog.value = false;
-  fetch();
+  resetAndFetch();
 }
 
 onMounted(() => {

@@ -1,31 +1,48 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Header -->
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Customers</h2>
-        <p class="text-body-2 text-medium-emphasis">
+        <h1 class="text-h5 font-weight-bold mb-0">Customers</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">
           Guests who have dined in or ordered via QR
         </p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">
         Add Customer
       </v-btn>
-    </v-sheet>
+    </div>
 
-    <!-- Customer Table -->
-    <v-data-table-server :headers="headers" :items="customerStore.customers" :items-length="customerStore.total"
-      v-model:page="page" v-model:items-per-page="customerStore.take" :loading="customerStore.loading"
-      item-key="id" class="elevation-1 rounded-lg">
-      <template #item.email="{ value }">{{ value || '-' }}</template>
-      <template #item.phone="{ value }">{{ value || '-' }}</template>
+    <!-- Customer Cards -->
+    <v-row>
+      <v-col v-for="c in displayedCustomers" :key="c.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column">
+          <div class="d-flex justify-space-between align-start mb-2">
+            <div class="font-weight-bold text-subtitle-1">{{ c.name }}</div>
+            <v-menu>
+              <template #activator="{ props }">
+                <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
+              </template>
+              <v-list density="compact">
+                <v-list-item @click="viewCustomer(c.id)">View Details</v-list-item>
+                <v-list-item @click="openDialog(c)">Edit</v-list-item>
+                <v-list-item @click="confirmDelete(c)"><span class="text-error">Delete</span></v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+          <div class="text-body-2 text-medium-emphasis mb-1">{{ c.email || '—' }}</div>
+          <div class="text-body-2 text-medium-emphasis">{{ c.phone || '—' }}</div>
+        </div>
+      </v-col>
 
-      <template #item.actions="{ item }">
-        <v-icon size="20" color="primary" class="me-2" @click="viewCustomer(item.id)">mdi-eye</v-icon>
-        <v-icon size="20" color="primary" class="me-2" @click="openDialog(item)">mdi-pencil</v-icon>
-        <v-icon size="20" color="error" @click="confirmDelete(item)">mdi-delete</v-icon>
-      </template>
-    </v-data-table-server>
+      <v-col v-if="!displayedCustomers.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No customers yet</div>
+      </v-col>
+    </v-row>
+
+    <div v-if="displayedCustomers.length < customerStore.total" class="d-flex justify-center mt-6">
+      <v-btn variant="outlined" class="load-more-btn" :loading="customerStore.loading" @click="page += 1">View More</v-btn>
+    </div>
 
     <!-- Add/Edit Dialog -->
     <v-dialog v-model="dialog" max-width="480px">
@@ -60,7 +77,7 @@
         </v-container>
 
         <v-container v-else class="pa-6">
-          <v-card class="pa-6 mb-6 rounded-xl" elevation="3">
+          <div class="app-card pa-6 mb-6">
             <v-row align="center">
               <v-col cols="12" md="8">
                 <h2 class="text-h5 font-weight-bold mb-1">{{ customerStore.selectedCustomer.name }}</h2>
@@ -77,31 +94,31 @@
                 </div>
               </v-col>
             </v-row>
-          </v-card>
+          </div>
 
           <v-row class="mb-6">
             <v-col cols="12" md="6">
-              <v-card class="pa-5 rounded-xl" elevation="1">
+              <div class="app-card pa-5">
                 <div class="text-caption text-medium-emphasis">Total Orders</div>
                 <h3 class="text-h6 font-weight-bold">{{ customerStore.orders.length }}</h3>
-              </v-card>
+              </div>
             </v-col>
             <v-col cols="12" md="6">
-              <v-card class="pa-5 rounded-xl" elevation="1">
+              <div class="app-card pa-5">
                 <div class="text-caption text-medium-emphasis">Total Spent</div>
                 <h3 class="text-h6 font-weight-bold">
                   {{ $formatPrice(customerStore.orders.reduce((s, o) => s + o.totalAmount, 0)) }}
                 </h3>
-              </v-card>
+              </div>
             </v-col>
           </v-row>
 
-          <v-card class="pa-6 rounded-xl" elevation="2">
+          <div class="app-card pa-6">
             <h3 class="text-subtitle-1 font-weight-bold mb-6">Order History</h3>
 
             <v-row>
               <v-col v-for="order in customerStore.orders" :key="order.id" cols="12">
-                <v-card class="pa-5 rounded-xl mb-4" elevation="1">
+                <div class="app-card pa-5 mb-4">
                   <div class="d-flex justify-space-between align-start mb-3">
                     <div>
                       <div class="font-weight-bold text-body-1">{{ order.table?.tableNo || 'Takeaway' }}</div>
@@ -121,14 +138,14 @@
                   <div class="d-flex justify-space-between font-weight-bold">
                     <span>Total</span><span>{{ $formatPrice(order.totalAmount) }}</span>
                   </div>
-                </v-card>
+                </div>
               </v-col>
 
               <v-col v-if="!customerStore.orders.length" cols="12" class="text-center text-medium-emphasis py-6">
                 No orders yet
               </v-col>
             </v-row>
-          </v-card>
+          </div>
         </v-container>
       </v-card>
     </v-dialog>
@@ -170,12 +187,10 @@ const rules = {
   email: (v) => !v || /.+@.+\..+/.test(v) || "Invalid email",
 };
 
-const headers = [
-  { title: "Name", key: "name" },
-  { title: "Email", key: "email" },
-  { title: "Phone", key: "phone" },
-  { title: "Actions", key: "actions", sortable: false },
-];
+const displayedCustomers = ref([]);
+watch(() => customerStore.customers, (list) => {
+  displayedCustomers.value = page.value === 1 ? list : [...displayedCustomers.value, ...list];
+});
 
 const viewCustomer = async (id) => {
   viewDialog.value = true;

@@ -1,10 +1,10 @@
 <template>
     <v-container fluid class="pa-6">
         <!-- Header -->
-        <v-sheet class="d-flex flex-wrap align-center justify-space-between mb-6 px-4 py-3 rounded-lg" elevation="1">
+        <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
             <!-- Title Section -->
-            <div class="d-flex flex-column">
-                <h2 class="text-h5 font-weight-bold mb-1">Journal Entries</h2>
+            <div>
+                <h1 class="text-h5 font-weight-bold mb-0">Journal Entries</h1>
                 <p class="text-body-2 text-medium-emphasis mb-0">
                     View all journal transactions
                 </p>
@@ -13,44 +13,52 @@
             <!-- Filters Section -->
             <div class="d-flex align-center flex-wrap ga-3">
                 <v-text-field v-model="filters.startDate" type="date" label="Start Date" density="comfortable"
-                    hide-details variant="outlined" style="max-width: 180px;" />
+                    hide-details style="max-width: 180px;" />
                 <v-text-field v-model="filters.endDate" type="date" label="End Date" density="comfortable" hide-details
-                    variant="outlined" style="max-width: 180px;" />
-                <v-btn color="primary" class="text-none font-weight-medium" @click="fetchData"
-                    :loading="journalStore.loading" height="44">
+                    style="max-width: 180px;" />
+                <v-btn color="primary" @click="resetAndFetch" :loading="journalStore.loading" height="44">
                     Filter
                 </v-btn>
             </div>
-        </v-sheet>
+        </div>
 
-        <!-- Table -->
-        <v-card>
-            <v-data-table-server :headers="headers" :items="journalStore.journals" :loading="journalStore.loading"
-                v-model:page="journalStore.pagination.page" v-model:items-per-page="journalStore.pagination.take"
-                :items-length="journalStore.pagination.total" :items-per-page-options="[5, 10, 20, 50]"
-                class="elevation-1" @update:page="onPaginationChange" @update:items-per-page="onItemsPerPageChange">
-                <template #item.date="{ item }">
-                    {{ new Date(item.date).toLocaleDateString() }}
-                </template>
+        <!-- Journal Entry Cards -->
+        <div class="app-card">
+            <div v-for="(item, idx) in displayedJournals" :key="item.id"
+                class="d-flex flex-wrap justify-space-between align-center px-5 py-4 ga-3"
+                :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+                <div style="min-width: 160px">
+                    <div class="text-caption text-medium-emphasis">{{ new Date(item.date).toLocaleDateString() }}</div>
+                    <div class="font-weight-bold">{{ item.account.name }}</div>
+                </div>
+                <div class="flex-grow-1 text-body-2 text-medium-emphasis" style="min-width: 200px">
+                    {{ item.description }}
+                </div>
+                <div class="d-flex ga-6">
+                    <div class="text-right" style="min-width: 90px">
+                        <div class="text-caption text-medium-emphasis">Debit</div>
+                        <div class="font-weight-medium mono-data">{{ item.debit ? $formatPrice(item.debit.toFixed(2)) : '—' }}</div>
+                    </div>
+                    <div class="text-right" style="min-width: 90px">
+                        <div class="text-caption text-medium-emphasis">Credit</div>
+                        <div class="font-weight-medium mono-data">{{ item.credit ? $formatPrice(item.credit.toFixed(2)) : '—' }}</div>
+                    </div>
+                </div>
+            </div>
 
-                <template #item.account="{ item }">
-                    {{ item.account.name }}
-                </template>
+            <div v-if="!displayedJournals.length" class="text-center text-medium-emphasis py-10">
+                No journal entries found
+            </div>
+        </div>
 
-                <template #item.debit="{ item }">
-                    {{ $formatPrice(item.debit.toFixed(2)) }}
-                </template>
-
-                <template #item.credit="{ item }">
-                    {{ $formatPrice(item.credit.toFixed(2)) }}
-                </template>
-            </v-data-table-server>
-        </v-card>
+        <div v-if="displayedJournals.length < journalStore.pagination.total" class="d-flex justify-center mt-6">
+            <v-btn variant="outlined" class="load-more-btn" :loading="journalStore.loading" @click="loadMore">View More</v-btn>
+        </div>
     </v-container>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useJournalStore } from '@/stores/journal'
 
@@ -59,15 +67,12 @@ const { $formatPrice } = useNuxtApp();
 const journalStore = useJournalStore()
 const { filters } = storeToRefs(journalStore)
 
-const headers = [
-    { title: 'Date', key: 'date' },
-    { title: 'Account', key: 'account' },
-    { title: 'Description', key: 'description' },
-    { title: 'Debit', key: 'debit', align: 'end' },
-    { title: 'Credit', key: 'credit', align: 'end' },
-]
+const displayedJournals = ref([])
+watch(() => journalStore.journals, (list) => {
+    displayedJournals.value = journalStore.pagination.page === 1 ? list : [...displayedJournals.value, ...list]
+})
 
-function fetchData() {
+async function fetchData() {
     // ✅ Ensure ISO format before calling the API
     if (filters.value.startDate && filters.value.endDate) {
         filters.value.startDate = new Date(filters.value.startDate)
@@ -78,16 +83,16 @@ function fetchData() {
             .split('T')[0]
     }
 
-    console.log('Fetching journals with filters:', filters.value)
-    journalStore.fetchJournals()
+    await journalStore.fetchJournals()
 }
 
-function onPaginationChange() {
+function resetAndFetch() {
+    journalStore.pagination.page = 1
     fetchData()
 }
 
-function onItemsPerPageChange() {
-    journalStore.pagination.page = 1
+function loadMore() {
+    journalStore.pagination.page += 1
     fetchData()
 }
 

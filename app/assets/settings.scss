@@ -4,8 +4,8 @@
  * (text-h1..h6, text-body-*, text-subtitle-*, text-caption) app-wide.
  */
 @use 'vuetify/settings' with (
-  $body-font-family: '"Inter", sans-serif',
-  $heading-font-family: '"Manrope", sans-serif',
+  $body-font-family: ('Inter', sans-serif),
+  $heading-font-family: ('Manrope', sans-serif),
   $border-radius-root: 10px
 );
 
@@ -38,6 +38,10 @@ body {
 }
 .app-card:hover {
   box-shadow: 0 12px 28px -8px rgba(74, 59, 120, 0.12);
+}
+.app-card--active {
+  border-color: #4A3B78;
+  box-shadow: 0 0 0 1px #4A3B78;
 }
 
 // Page header bar (title + subtitle + action)

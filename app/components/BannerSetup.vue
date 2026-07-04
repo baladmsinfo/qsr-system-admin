@@ -2,28 +2,28 @@
   <v-container fluid class="pa-6">
 
     <!-- 🔥 Header -->
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Banners</h2>
-        <p class="text-body-2 text-medium-emphasis">Manage company homepage banners</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Banners</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Manage company homepage banners</p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openBannerDialog">
         Add Banner
       </v-btn>
-    </v-sheet>
+    </div>
 
     <v-row>
       <v-col cols="12" md="6" v-for="banner in companyStore.banners" :key="banner.id">
-        <v-card class="rounded-xl overflow-hidden">
+        <div class="app-card overflow-hidden">
           <v-img :src="banner.imageUrl" height="200" cover />
 
-          <v-card-title class="d-flex align-center justify-space-between">
-            <span class="font-weight-bold">
+          <div class="d-flex align-center justify-space-between px-5 pt-4">
+            <span class="font-weight-bold text-subtitle-1">
               {{ banner.title || "Untitled Banner" }}
             </span>
 
             <div>
-              <v-chip v-if="banner.manage" color="green" size="small" variant="flat">
+              <v-chip v-if="banner.manage" color="success" size="small" variant="tonal">
                 Default
               </v-chip>
 
@@ -31,21 +31,19 @@
                 Set as Default
               </v-btn>
             </div>
-          </v-card-title>
+          </div>
 
-          <v-card-text class="text-body-2">
+          <div class="text-body-2 text-medium-emphasis px-5 pb-5 pt-2">
             {{ banner.description }}
-          </v-card-text>
-        </v-card>
+          </div>
+        </div>
 
       </v-col>
-    </v-row>
 
-    <!-- ℹ️ No Banners -->
-    <v-alert v-if="!companyStore.bannerLoading && companyStore.banners.length === 0" type="info" variant="tonal"
-      class="mt-4">
-      No banners added yet
-    </v-alert>
+      <v-col v-if="!companyStore.bannerLoading && companyStore.banners.length === 0" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No banners added yet</div>
+      </v-col>
+    </v-row>
 
     <!-- ⏳ Loader -->
     <div class="d-flex justify-center mt-6" v-if="companyStore.bannerLoading">

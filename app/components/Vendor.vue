@@ -1,34 +1,50 @@
 <template>
   <v-container fluid class="pa-6">
     <!-- Header -->
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Vendors</h2>
-        <p class="text-body-2 text-medium-emphasis">
+        <h1 class="text-h5 font-weight-bold mb-0">Vendors</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">
           Manage all your suppliers and purchase partners
         </p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">
         Add Vendor
       </v-btn>
-    </v-sheet>
+    </div>
 
-    <!-- Vendor Table -->
-    <v-data-table-server :headers="headers" :items="vendorStore.vendors" :items-length="vendorStore.total"
-      v-model:page="page" v-model:items-per-page="vendorStore.take" :loading="vendorStore.loading"
-      class="elevation-1 rounded-lg">
-      <template #item.actions="{ item }">
-        <v-icon size="20" color="primary" class="me-2" @click="openDialog(item)">
-          mdi-pencil
-        </v-icon>
-        <v-icon size="20" color="primary" class="me-2" @click="viewVendor(item.id)">
-          mdi-eye
-        </v-icon>
-        <v-icon size="20" color="error" @click="confirmDelete(item)">
-          mdi-delete
-        </v-icon>
-      </template>
-    </v-data-table-server>
+    <!-- Vendor Cards -->
+    <v-row>
+      <v-col v-for="v in displayedVendors" :key="v.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column">
+          <div class="d-flex justify-space-between align-start mb-2">
+            <div class="font-weight-bold text-subtitle-1">{{ v.name }}</div>
+            <v-menu>
+              <template #activator="{ props }">
+                <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
+              </template>
+              <v-list density="compact">
+                <v-list-item @click="viewVendor(v.id)">View Details</v-list-item>
+                <v-list-item @click="openDialog(v)">Edit</v-list-item>
+                <v-list-item @click="confirmDelete(v)"><span class="text-error">Delete</span></v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+          <div class="text-body-2 text-medium-emphasis mb-1">{{ v.email || '—' }}</div>
+          <div class="text-body-2 text-medium-emphasis mb-3">{{ v.phone || '—' }}</div>
+          <v-spacer />
+          <v-chip size="small" variant="tonal" class="align-self-start">GSTIN: {{ v.gstin || 'NA' }}</v-chip>
+        </div>
+      </v-col>
+
+      <v-col v-if="!displayedVendors.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No vendors yet</div>
+      </v-col>
+    </v-row>
+
+    <div v-if="displayedVendors.length < vendorStore.total" class="d-flex justify-center mt-6">
+      <v-btn variant="outlined" class="load-more-btn" :loading="vendorStore.loading" @click="page += 1">View More</v-btn>
+    </div>
 
     <v-dialog v-model="viewDialog" fullscreen transition="dialog-bottom-transition">
       <v-card class="bg-grey-lighten-5">
@@ -53,7 +69,7 @@
         <v-container v-else class="pa-6">
 
           <!-- VENDOR HERO -->
-          <v-card class="pa-6 mb-6 rounded-xl" elevation="3">
+          <div class="app-card pa-6 mb-6">
             <v-row align="center">
               <v-col cols="12" md="8">
                 <h2 class="text-h5 font-weight-bold mb-1">
@@ -80,31 +96,31 @@
                 </div>
               </v-col>
             </v-row>
-          </v-card>
+          </div>
 
           <!-- STATS -->
           <v-row class="mb-6">
             <v-col cols="12" md="6">
-              <v-card class="pa-5 rounded-xl" elevation="1">
+              <div class="app-card pa-5">
                 <div class="text-caption text-medium-emphasis">Total Purchases</div>
                 <h3 class="text-h6 font-weight-bold">
                   {{ vendorStore.selectedVendor.purchases?.length || 0 }}
                 </h3>
-              </v-card>
+              </div>
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-card class="pa-5 rounded-xl" elevation="1">
+              <div class="app-card pa-5">
                 <div class="text-caption text-medium-emphasis">Total Spent</div>
                 <h3 class="text-h6 font-weight-bold">
                   {{$formatPrice(vendorStore.selectedVendor.purchases?.reduce((s, p) => s + p.totalAmount, 0) || 0)}}
                 </h3>
-              </v-card>
+              </div>
             </v-col>
           </v-row>
 
           <!-- ADDRESS -->
-          <v-card class="pa-6 mb-6 rounded-xl" elevation="2">
+          <div class="app-card pa-6 mb-6">
             <h3 class="text-subtitle-1 font-weight-bold mb-4">Address</h3>
 
             <div v-if="vendorStore.selectedVendor.address" class="d-flex align-start">
@@ -119,19 +135,19 @@
             <div v-else class="text-body-2 text-medium-emphasis">
               No address provided
             </div>
-          </v-card>
+          </div>
 
           <!-- PURCHASE HISTORY -->
-          <v-card class="pa-6 rounded-xl" elevation="2">
+          <div class="app-card pa-6">
             <h3 class="text-subtitle-1 font-weight-bold mb-6">Purchase History</h3>
 
             <!-- DATE FILTER -->
-            <v-card class="pa-5 rounded-xl mb-6" elevation="1">
+            <div class="app-card pa-5 mb-6" style="border-style: dashed">
               <v-row align="stretch" dense>
                 <v-col cols="12" md="4">
                   <v-menu v-model="startMenu" :close-on-content-click="false">
                     <template #activator="{ props }">
-                      <v-text-field v-model="startDateFormatted" label="Start Date" variant="outlined"
+                      <v-text-field v-model="startDateFormatted" label="Start Date"
                         prepend-inner-icon="mdi-calendar" readonly hide-details v-bind="props" class="fill-height" />
                     </template>
                     <v-date-picker v-model="startDate" @update:modelValue="startMenu = false" />
@@ -141,7 +157,7 @@
                 <v-col cols="12" md="4">
                   <v-menu v-model="endMenu" :close-on-content-click="false">
                     <template #activator="{ props }">
-                      <v-text-field v-model="endDateFormatted" label="End Date" variant="outlined"
+                      <v-text-field v-model="endDateFormatted" label="End Date"
                         prepend-inner-icon="mdi-calendar" readonly hide-details v-bind="props" class="fill-height" />
                     </template>
                     <v-date-picker v-model="endDate" :min="startDate" @update:modelValue="endMenu = false" />
@@ -149,17 +165,16 @@
                 </v-col>
 
                 <v-col cols="12" md="4">
-                  <v-btn size="large" block class="rounded-lg text-white fill-height"
-                    style="background: linear-gradient(135deg, #5b2fb5, #7b4de8)" @click="applyPurchaseFilter">
+                  <v-btn size="large" block color="primary" class="fill-height" @click="applyPurchaseFilter">
                     Apply Filter
                   </v-btn>
                 </v-col>
               </v-row>
-            </v-card>
+            </div>
 
             <v-row>
               <v-col v-for="p in vendorStore.purchases" :key="p.id" cols="12">
-                <v-card class="pa-5 rounded-xl mb-4" elevation="1">
+                <div class="app-card pa-5 mb-4">
                   <div class="d-flex justify-space-between align-start mb-4">
                     <div class="text-caption text-medium-emphasis">
                       {{ new Date(p.date).toLocaleDateString() }}
@@ -184,14 +199,14 @@
                       <div class="font-weight-bold text-primary">{{ $formatPrice(p.totalAmount) }}</div>
                     </v-col>
                   </v-row>
-                </v-card>
+                </div>
               </v-col>
 
               <v-col v-if="!vendorStore.purchases.length" cols="12" class="text-center text-medium-emphasis py-6">
                 No purchases recorded yet
               </v-col>
             </v-row>
-          </v-card>
+          </div>
 
         </v-container>
       </v-card>
@@ -301,14 +316,10 @@ const rules = {
   email: v => !v || /.+@.+\..+/.test(v) || 'Invalid email',
 }
 
-const headers = [
-  { title: 'Name', key: 'name' },
-  { title: 'Email', key: 'email' },
-  { title: 'Phone', key: 'phone' },
-  { title: 'GSTIN', key: 'gstin' },
-  { title: 'Address', key: 'address' },
-  { title: 'Actions', key: 'actions', sortable: false },
-]
+const displayedVendors = ref([])
+watch(() => vendorStore.vendors, (list) => {
+  displayedVendors.value = page.value === 1 ? list : [...displayedVendors.value, ...list]
+})
 
 const fetchData = async () => {
   await vendorStore.fetchVendors(page.value)

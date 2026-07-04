@@ -1,27 +1,25 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-sheet elevation="0" class="d-flex align-center justify-space-between mb-6 px-4 py-3 bg-surface rounded-lg">
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
-        <h2 class="text-h5 font-weight-bold mb-0">Kitchen Display</h2>
-        <p class="text-body-2 text-medium-emphasis">Live incoming tickets</p>
+        <h1 class="text-h5 font-weight-bold mb-0">Kitchen Display</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">Live incoming tickets</p>
       </div>
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" variant="outlined" hide-details style="max-width: 220px" />
-    </v-sheet>
+        density="compact" hide-details style="max-width: 220px" />
+    </div>
 
     <v-row>
       <v-col v-for="col in columns" :key="col.status" cols="12" md="4">
-        <v-sheet class="pa-3 rounded-lg mb-3" :color="col.color" variant="tonal">
-          <div class="d-flex justify-space-between align-center">
-            <span class="font-weight-bold">{{ col.label }}</span>
-            <v-chip size="small">{{ ticketsFor(col.status).length }}</v-chip>
-          </div>
-        </v-sheet>
+        <div class="d-flex justify-space-between align-center mb-3 px-1">
+          <span class="text-subtitle-2 font-weight-bold text-uppercase" :style="{ color: `rgb(var(--v-theme-${col.color}))`, letterSpacing: '0.04em' }">{{ col.label }}</span>
+          <v-chip size="small" :color="col.color" variant="tonal" class="font-weight-bold">{{ ticketsFor(col.status).length }}</v-chip>
+        </div>
 
-        <v-card v-for="ticket in ticketsFor(col.status)" :key="ticket.id" class="mb-3 rounded-lg" elevation="2">
-          <v-card-text>
+        <div v-for="ticket in ticketsFor(col.status)" :key="ticket.id" class="app-card mb-3">
+          <div class="pa-5">
             <div class="d-flex justify-space-between align-center mb-2">
-              <span class="font-weight-bold">{{ ticket.token }}</span>
+              <span class="font-weight-bold mono-data">{{ ticket.token }}</span>
               <v-chip size="small" variant="tonal">{{ ticket.station }}</v-chip>
             </div>
             <div class="text-caption text-medium-emphasis mb-2">
@@ -37,8 +35,8 @@
             <div v-for="item in ticket.orderItems.filter(i => i.remarks)" :key="item.id + '-note'" class="text-caption text-error">
               Note: {{ item.remarks }}
             </div>
-          </v-card-text>
-          <v-card-actions>
+          </div>
+          <div class="d-flex align-center px-5 pb-4">
             <v-spacer />
             <v-btn v-if="col.status === 'PENDING'" size="small" color="primary" :loading="busyId === ticket.id" @click="advance(ticket, 'PREPARING')">
               Start Preparing
@@ -49,8 +47,8 @@
             <v-btn v-if="col.status === 'READY'" size="small" variant="tonal" :loading="busyId === ticket.id" @click="advance(ticket, 'COMPLETED')">
               Handed Off
             </v-btn>
-          </v-card-actions>
-        </v-card>
+          </div>
+        </div>
 
         <div v-if="!ticketsFor(col.status).length" class="text-center text-medium-emphasis py-6">
           No tickets

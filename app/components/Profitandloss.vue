@@ -1,114 +1,84 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card elevation="2" class="rounded-lg">
+    <!-- 🔹 Header -->
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+      <div>
+        <h1 class="text-h5 font-weight-bold mb-0">Profit &amp; Loss Report</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">
+          View income, expenses, and net profit
+        </p>
+      </div>
 
-      <!-- 🔹 Header -->
-      <v-card-title class="text-h6 d-flex align-center justify-space-between">
-        <div>
-          Profit & Loss Report
-          <p class="text-body-2 text-medium-emphasis mt-1 mb-0">
-            View income, expenses, and net profit
-          </p>
+      <!-- 🔹 Date Filters -->
+      <div class="d-flex align-center flex-wrap ga-2">
+        <v-text-field
+          v-model="startDate"
+          type="date"
+          label="Start Date"
+          density="compact"
+          hide-details
+          style="max-width: 160px"
+        />
+
+        <v-text-field
+          v-model="endDate"
+          type="date"
+          label="End Date"
+          density="compact"
+          hide-details
+          style="max-width: 160px"
+        />
+
+        <v-btn color="primary" @click="loadProfitLoss" :disabled="dashboard.loading">
+          Apply Filter
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- 📊 Profit & Loss Body -->
+    <div v-if="report">
+
+      <!-- ⭐ INCOME -->
+      <h3 class="text-subtitle-1 font-weight-bold mb-2">Income</h3>
+      <div class="app-card mb-6">
+        <div v-for="(item, idx) in report.income.accounts" :key="item.accountId"
+          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+          <span>{{ item.accountName }}</span>
+          <span class="mono-data">{{ $formatPrice(item.credit - item.debit) }}</span>
         </div>
-
-        <!-- 🔹 Date Filters -->
-        <div class="d-flex align-center ga-2">
-          <v-text-field
-            v-model="startDate"
-            type="date"
-            label="Start Date"
-            density="compact"
-            hide-details
-            variant="outlined"
-            style="max-width: 160px"
-          />
-
-          <v-text-field
-            v-model="endDate"
-            type="date"
-            label="End Date"
-            density="compact"
-            hide-details
-            variant="outlined"
-            style="max-width: 160px"
-          />
-
-          <v-btn color="primary" variant="flat" @click="loadProfitLoss" :disabled="dashboard.loading">
-            APPLY FILTER
-          </v-btn>
-        </div>
-      </v-card-title>
-
-      <v-divider />
-
-      <!-- 📊 Profit & Loss Body -->
-      <div v-if="report" class="pa-4">
-
-        <!-- ⭐ INCOME -->
-        <h3 class="text-h6 font-weight-bold mb-2">Income</h3>
-        <table class="pl-table">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th class="text-end">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in report.income.accounts" :key="item.accountId">
-              <td>{{ item.accountName }}</td>
-              <td class="text-end">{{ $formatPrice(item.credit - item.debit) }}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="font-weight-bold">
-              <td>Total Income</td>
-              <td class="text-end">{{ $formatPrice(report.income.total) }}</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <v-divider class="my-4" />
-
-        <!-- ⭐ EXPENSES -->
-        <h3 class="text-h6 font-weight-bold mb-2">Expenses</h3>
-        <table class="pl-table">
-          <thead>
-            <tr>
-              <th>Account</th>
-              <th class="text-end">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in report.expenses.accounts" :key="item.accountId">
-              <td>{{ item.accountName }}</td>
-              <td class="text-end">{{ $formatPrice(item.debit - item.credit) }}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="font-weight-bold">
-              <td>Total Expenses</td>
-              <td class="text-end">{{ $formatPrice(report.expenses.total) }}</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <v-divider class="my-4" />
-
-        <!-- 💰 NET PROFIT / LOSS -->
-        <div class="text-h6 d-flex justify-space-between">
-          <span>Net Profit / Loss</span>
-          <span :class="report.summary.isProfit ? 'text-success' : 'text-error'">
-            {{ $formatPrice(report.summary.netProfit) }}
-          </span>
+        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EAE6F2; background: #FBFAFD">
+          <span>Total Income</span>
+          <span class="mono-data">{{ $formatPrice(report.income.total) }}</span>
         </div>
       </div>
 
-      <!-- ℹ️ Empty state -->
-      <v-alert v-else type="info" variant="tonal" border="start" class="ma-4">
-        No Profit & Loss data found.
-      </v-alert>
+      <!-- ⭐ EXPENSES -->
+      <h3 class="text-subtitle-1 font-weight-bold mb-2">Expenses</h3>
+      <div class="app-card mb-6">
+        <div v-for="(item, idx) in report.expenses.accounts" :key="item.accountId"
+          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+          <span>{{ item.accountName }}</span>
+          <span class="mono-data">{{ $formatPrice(item.debit - item.credit) }}</span>
+        </div>
+        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EAE6F2; background: #FBFAFD">
+          <span>Total Expenses</span>
+          <span class="mono-data">{{ $formatPrice(report.expenses.total) }}</span>
+        </div>
+      </div>
 
-    </v-card>
+      <!-- 💰 NET PROFIT / LOSS -->
+      <div class="app-card pa-5 d-flex justify-space-between align-center">
+        <span class="text-h6 font-weight-bold">Net Profit / Loss</span>
+        <span class="text-h6 font-weight-bold mono-data" :class="report.summary.isProfit ? 'text-success' : 'text-error'">
+          {{ $formatPrice(report.summary.netProfit) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ℹ️ Empty state -->
+    <div v-else class="app-card pa-10 text-center text-medium-emphasis">
+      No Profit & Loss data found.
+    </div>
   </v-container>
 </template>
 
@@ -134,28 +104,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.pl-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.pl-table th {
-  background: #fafafa;
-  font-weight: 600;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.pl-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.text-end {
-  text-align: right;
-}
-
 .text-success {
   color: #2e7d32 !important;
 }

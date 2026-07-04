@@ -1,92 +1,70 @@
 <template>
   <v-container fluid class="pa-6">
-    <v-card elevation="2" class="rounded-lg">
-      <!-- 🔹 Header -->
-      <v-card-title class="text-h6 d-flex align-center justify-space-between">
-        <div>
-          Ledger Report
-          <p class="text-body-2 text-medium-emphasis mt-1 mb-0">
-            View transactions for all or specific accounts
-          </p>
-        </div>
-
-        <div class="d-flex align-center">
-          <v-autocomplete
-            v-model="selectedAccount"
-            :items="accountOptions"
-            item-title="name"
-            item-value="id"
-            label="Select Account"
-            density="compact"
-            hide-details
-            clearable
-            variant="outlined"
-            class="mr-2"
-            style="max-width: 300px"
-            :loading="reports.loading"
-            @update:model-value="onAccountSelect"
-          />
-          <v-btn
-            color="primary"
-            variant="flat"
-            @click="loadLedger"
-            :disabled="reports.loading"
-          >
-            REFRESH
-          </v-btn>
-        </div>
-      </v-card-title>
-
-      <v-divider />
-
-      <!-- 📋 Ledger Table -->
-      <div v-if="reports.ledger?.length" class="ledger-table-container">
-        <table class="ledger-table">
-          <thead>
-            <tr>
-              <th style="width: 10%">Date</th>
-              <th style="width: 40%">Description</th>
-              <th style="width: 15%" class="text-end">Debit</th>
-              <th style="width: 15%" class="text-end">Credit</th>
-              <th style="width: 20%" class="text-end">Running Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(item, index) in reports.ledger" :key="index">
-              <!-- 🧾 Account Header -->
-              <tr v-if="item.isHeader" class="account-header-row">
-                <td colspan="5">{{ item.accountName }}</td>
-              </tr>
-
-              <!-- 💰 Transaction Row -->
-              <tr v-else>
-                <td class="text-no-wrap">
-                  {{ formatDate(item.date) }}
-                </td>
-                <td>{{ item.description }}</td>
-                <td class="text-end">
-                  {{ $formatPrice(item.debit) }}
-                </td>
-                <td class="text-end">
-                  {{ $formatPrice(item.credit) }}
-                </td>
-                <td
-                  class="text-end font-weight-medium"
-                  :class="item.runningBalance >= 0 ? 'text-success' : 'text-error'"
-                >
-                  {{ $formatPrice(item.runningBalance) }}
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+    <!-- 🔹 Header -->
+    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+      <div>
+        <h1 class="text-h5 font-weight-bold mb-0">Ledger Report</h1>
+        <p class="text-body-2 text-medium-emphasis mb-0">
+          View transactions for all or specific accounts
+        </p>
       </div>
 
-      <!-- ℹ️ Empty State -->
-      <v-alert v-else type="info" variant="tonal" border="start" class="ma-4">
-        No ledger data found.
-      </v-alert>
-    </v-card>
+      <div class="d-flex align-center ga-2">
+        <v-autocomplete
+          v-model="selectedAccount"
+          :items="accountOptions"
+          item-title="name"
+          item-value="id"
+          label="Select Account"
+          density="compact"
+          hide-details
+          clearable
+          style="max-width: 300px"
+          :loading="reports.loading"
+          @update:model-value="onAccountSelect"
+        />
+        <v-btn
+          color="primary"
+          variant="tonal"
+          prepend-icon="mdi-refresh"
+          @click="loadLedger"
+          :disabled="reports.loading"
+        >
+          Refresh
+        </v-btn>
+      </div>
+    </div>
+
+    <!-- 📋 Ledger Cards -->
+    <div v-if="reports.ledger?.length" class="app-card">
+      <template v-for="(item, index) in reports.ledger">
+        <!-- 🧾 Account Header -->
+        <div v-if="item.isHeader" :key="'h' + index" class="px-5 py-3 font-weight-bold"
+          :style="{ background: '#FBFAFD', borderTop: index > 0 ? '1px solid #EAE6F2' : 'none' }">
+          {{ item.accountName }}
+        </div>
+
+        <!-- 💰 Transaction Row -->
+        <div v-else :key="index" class="d-flex flex-wrap justify-space-between align-center px-5 py-3 ga-3"
+          style="border-top: 1px solid #EAE6F2">
+          <div style="min-width: 110px" class="text-caption text-medium-emphasis">{{ formatDate(item.date) }}</div>
+          <div class="flex-grow-1 text-body-2" style="min-width: 180px">{{ item.description }}</div>
+          <div class="d-flex ga-6">
+            <div class="text-right mono-data" style="min-width: 90px">{{ $formatPrice(item.debit) }}</div>
+            <div class="text-right mono-data" style="min-width: 90px">{{ $formatPrice(item.credit) }}</div>
+            <div class="text-right font-weight-medium mono-data" style="min-width: 100px"
+              :class="item.runningBalance >= 0 ? 'text-success' : 'text-error'">
+              {{ $formatPrice(item.runningBalance) }}
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ℹ️ Empty State -->
+    <div v-else class="app-card pa-10 text-center text-medium-emphasis">
+      No ledger data found.
+    </div>
   </v-container>
 </template>
 
@@ -131,56 +109,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.ledger-table-container {
-  width: 100%;
-  overflow-x: auto;
-}
-
-.ledger-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.ledger-table thead th {
-  background-color: #fafafa;
-  font-weight: 600;
-  text-align: left;
-  padding: 10px 12px;
-  border-bottom: 1px solid #ddd;
-  color: #555;
-}
-
-.ledger-table tbody td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #eee;
-  vertical-align: middle;
-}
-
-.account-header-row td {
-  background-color: #f5f5f5 !important;
-  font-weight: 600;
-  color: #424242;
-  border-top: 2px solid #e0e0e0;
-}
-
-.text-end {
-  text-align: right !important;
-}
-
-.text-no-wrap {
-  white-space: nowrap;
-}
-
 .text-success {
   color: #2e7d32 !important;
 }
 
 .text-error {
   color: #c62828 !important;
-}
-
-.v-alert {
-  border-radius: 8px;
 }
 </style>

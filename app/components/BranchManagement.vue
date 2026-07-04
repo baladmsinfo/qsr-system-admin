@@ -4,8 +4,11 @@
         <!-- ========================================================= -->
         <!-- HEADER -->
         <!-- ========================================================= -->
-        <div class="d-flex justify-space-between align-center mb-6">
-            <h2 class="text-h5 font-weight-bold">Branch Management</h2>
+        <div class="app-header-bar d-flex flex-wrap justify-space-between align-center mb-6 px-5 py-4 ga-3">
+            <div>
+                <h1 class="text-h5 font-weight-bold mb-0">Branch Management</h1>
+                <p class="text-body-2 text-medium-emphasis mb-0">All restaurant branches under your company</p>
+            </div>
 
             <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
                 Add Branch
@@ -16,32 +19,36 @@
         <!-- SEARCH BAR -->
         <!-- ========================================================= -->
         <v-text-field v-model="search" label="Search branches..." prepend-inner-icon="mdi-magnify" clearable
-            @input="fetch" class="mb-6" density="comfortable" variant="outlined" />
+            class="mb-6" density="comfortable" />
 
         <!-- ========================================================= -->
-        <!-- DATA TABLE (NO EXPANDABLE ROWS) -->
+        <!-- BRANCH CARDS -->
         <!-- ========================================================= -->
-        <v-data-table-server :headers="headers" :items="branches" :items-length="meta.total" :loading="loading"
-            :page="page" :items-per-page="limit" item-value="id" @update:page="updatePage"
-            @update:items-per-page="updateLimit" class="elevation-1 rounded-lg" density="comfortable">
-
-            <!-- Address Column -->
-            <template #item.address="{ item }">
-                <div class="text-body-2">
-                    {{ item.addressLine1 }},
-                    <span v-if="item.addressLine2">{{ item.addressLine2 }},</span>
-                    <span v-if="item.addressLine3">{{ item.addressLine3 }},</span><br>
-                    {{ item.city }}, {{ item.state }} - {{ item.pincode }}
+        <v-row>
+            <v-col v-for="item in displayedBranches" :key="item.id" cols="12" sm="6" lg="4">
+                <div class="app-card pa-5 h-100 d-flex flex-column">
+                    <div class="d-flex justify-space-between align-start mb-2">
+                        <div class="font-weight-bold text-subtitle-1">{{ item.name }}</div>
+                        <div>
+                            <v-btn size="small" variant="text" icon="mdi-pencil" color="primary" @click="openEditDialog(item)" />
+                            <v-btn size="small" variant="text" icon="mdi-delete" color="error" @click="openDeleteDialog(item)" />
+                        </div>
+                    </div>
+                    <div class="text-body-2 text-medium-emphasis">
+                        {{ item.addressLine1 }}<span v-if="item.addressLine2">, {{ item.addressLine2 }}</span><br>
+                        {{ item.city }}, {{ item.state }} - {{ item.pincode }}
+                    </div>
                 </div>
-            </template>
+            </v-col>
 
-            <!-- Actions Column -->
-            <template #item.actions="{ item }">
-                <v-btn size="small" variant="text" icon="mdi-pencil" color="primary" @click="openEditDialog(item)" />
-                <v-btn size="small" variant="text" icon="mdi-delete" color="error" @click="openDeleteDialog(item)" />
-            </template>
+            <v-col v-if="!displayedBranches.length" cols="12">
+                <div class="app-card pa-10 text-center text-medium-emphasis">No branches found</div>
+            </v-col>
+        </v-row>
 
-        </v-data-table-server>
+        <div v-if="displayedBranches.length < meta.total" class="d-flex justify-center mt-6">
+            <v-btn variant="outlined" class="load-more-btn" :loading="loading" @click="loadMore">View More</v-btn>
+        </div>
 
         <!-- ========================================================= -->
         <!-- MODERN ADD / EDIT DIALOG -->
@@ -221,43 +228,35 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from "vue";
+import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useCompanyStore } from "@/stores/company";
 
 const store = useCompanyStore();
-
-/* ========================================================= */
-/* TABLE HEADERS — Address replaces Admin Count */
-/* ========================================================= */
-const headers = [
-    { title: "Branch Name", key: "name" },
-    { title: "Address", key: "address" },
-    { title: "City", key: "city" },
-    { title: "State", key: "state" },
-    { title: "Actions", key: "actions", sortable: false },
-];
 
 const search = ref("");
 const page = ref(1);
 const limit = ref(10);
 
-const branches = computed(() => store.branches);
+const displayedBranches = ref([]);
 const meta = computed(() => store.meta);
 const loading = computed(() => store.loading);
 
-function fetch() {
-    store.fetchBranches(page.value, limit.value, search.value);
+async function fetch() {
+    await store.fetchBranches(page.value, limit.value, search.value);
+    displayedBranches.value = page.value === 1 ? store.branches : [...displayedBranches.value, ...store.branches];
 }
 
-function updatePage(p) {
-    page.value = p;
+function resetAndFetch() {
+    page.value = 1;
     fetch();
 }
 
-function updateLimit(l) {
-    limit.value = l;
+function loadMore() {
+    page.value += 1;
     fetch();
 }
+
+watch(search, resetAndFetch);
 
 // 🔒 Validation Rules
 const rules = {
@@ -356,7 +355,7 @@ async function saveBranch() {
     }
 
     dialog.value = false;
-    fetch();
+    resetAndFetch();
 }
 
 /* ========================================================= */
@@ -372,7 +371,7 @@ function openDeleteDialog(branch) {
 async function deleteBranchConfirm() {
     await store.deleteBranch(branchToDelete.value.id);
     deleteDialog.value = false;
-    fetch();
+    resetAndFetch();
 }
 
 onMounted(() => {

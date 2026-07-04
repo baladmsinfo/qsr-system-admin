@@ -2,90 +2,81 @@
     <v-container fluid class="pa-6">
 
         <!-- ░░ HEADER ░░ -->
-        <v-sheet class="d-flex align-center justify-space-between bg-surface px-4 py-4 rounded-lg mb-6" elevation="0">
+        <div class="app-header-bar d-flex flex-wrap align-center justify-space-between px-5 py-4 mb-6 ga-3">
             <div>
-                <h2 class="text-h5 font-weight-bold mb-1">Expenses</h2>
+                <h1 class="text-h5 font-weight-bold mb-0">Expenses</h1>
                 <p class="text-body-2 text-medium-emphasis mb-0">
                     Track & manage all expense transactions
                 </p>
             </div>
 
-            <v-btn color="primary" class="rounded-lg" prepend-icon="mdi-plus" @click="openDialog()">
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">
                 Add Expense
             </v-btn>
-        </v-sheet>
+        </div>
 
         <!-- ░░ FILTERS CARD ░░ -->
-        <v-card elevation="2" class="mb-6">
-            <v-card-text>
+        <div class="app-card pa-5 mb-6">
+            <v-row align="center" justify="center" class="g-4">
 
-                <v-row align="center" justify="center" class="g-4">
+                <!-- Category -->
+                <v-col cols="12" md="3">
+                    <v-select v-model="filters.category" :items="categoryOptions" item-title="name"
+                        item-value="name" label="Category" clearable />
+                </v-col>
 
-                    <!-- Category -->
-                    <v-col cols="12" md="3">
-                        <v-select v-model="filters.category" :items="categoryOptions" item-title="name"
-                            item-value="name" label="Category" clearable />
-                    </v-col>
+                <!-- From Date -->
+                <v-col cols="12" md="3">
+                    <v-text-field v-model="filters.fromDate" label="From Date" type="date" density="comfortable" />
+                </v-col>
 
-                    <!-- From Date -->
-                    <v-col cols="12" md="3">
-                        <v-text-field v-model="filters.fromDate" label="From Date" type="date" density="comfortable" />
-                    </v-col>
+                <!-- To Date -->
+                <v-col cols="12" md="3">
+                    <v-text-field v-model="filters.toDate" label="To Date" type="date" density="comfortable" />
+                </v-col>
 
-                    <!-- To Date -->
-                    <v-col cols="12" md="3">
-                        <v-text-field v-model="filters.toDate" label="To Date" type="date" density="comfortable" />
-                    </v-col>
+                <!-- Buttons -->
+                <v-col cols="12" md="3" class="d-flex align-center justify-end">
+                    <v-btn color="primary" class="mr-2" @click="applyFilters">
+                        Apply
+                    </v-btn>
 
-                    <!-- Buttons -->
-                    <v-col cols="12" md="3" class="d-flex align-center justify-end">
-                        <v-btn color="primary" class="rounded-lg mr-2" @click="applyFilters">
-                            Apply
-                        </v-btn>
+                    <v-btn color="grey-darken-1" variant="tonal" @click="clearFilters">
+                        Clear
+                    </v-btn>
+                </v-col>
 
-                        <v-btn color="grey-darken-1" variant="tonal" class="rounded-lg" @click="clearFilters">
-                            Clear
-                        </v-btn>
-                    </v-col>
+            </v-row>
+        </div>
 
-                </v-row>
+        <!-- ░░ EXPENSE CARDS ░░ -->
+        <v-row>
+            <v-col v-for="item in displayedExpenses" :key="item.id" cols="12" sm="6" lg="4">
+                <div class="app-card pa-5 h-100 d-flex flex-column">
+                    <div class="d-flex justify-space-between align-start mb-2">
+                        <div>
+                            <div class="font-weight-bold">{{ item.category }}</div>
+                            <div class="text-caption text-medium-emphasis">{{ formatDate(item.date) }}</div>
+                        </div>
+                        <v-btn v-if="item.images?.length" icon="mdi-image-outline" variant="tonal" size="small"
+                            @click="openImage(item.images)" />
+                    </div>
+                    <div v-if="item.description" class="text-body-2 text-medium-emphasis mb-3">
+                        {{ item.description?.toLocaleString() }}
+                    </div>
+                    <v-spacer />
+                    <div class="text-h6 font-weight-bold mono-data mt-2">{{ $formatPrice(item.amount) }}</div>
+                </div>
+            </v-col>
 
-            </v-card-text>
-        </v-card>
+            <v-col v-if="!displayedExpenses.length" cols="12">
+                <div class="app-card pa-10 text-center text-medium-emphasis">No expenses recorded yet</div>
+            </v-col>
+        </v-row>
 
-        <!-- ░░ EXPENSE TABLE ░░ -->
-        <v-card elevation="2">
-            <v-data-table-server :headers="headers" :items="expenseStore.expenses" :loading="expenseStore.loading"
-                v-model:page="expenseStore.pagination.page" v-model:items-per-page="expenseStore.pagination.take"
-                :items-length="expenseStore.pagination.total" :items-per-page-options="[5, 10, 20, 50]"
-                @update:page="expenseStore.setPage" @update:items-per-page="expenseStore.setItemsPerPage">
-
-                <template #item.category="{ item }">
-                    <span class="font-weight-medium">
-                        {{ item.category }}
-                    </span>
-                </template>
-
-                <template #item.amount="{ item }">
-                    {{ $formatPrice(item.amount) }}
-                </template>
-
-                <template #item.date="{ item }">
-                    {{ formatDate(item.date) }}
-                </template>
-
-                <template #item.description="{ item }">
-                    {{ item.description?.toLocaleString() }}
-                </template>
-
-                <template #item.proof="{ item }">
-                    <v-btn v-if="item.images?.length" icon="mdi-image-outline" variant="text"
-                        @click="openImage(item.images)" />
-                    <span v-else class="text-caption text-medium-emphasis">—</span>
-                </template>
-
-            </v-data-table-server>
-        </v-card>
+        <div v-if="displayedExpenses.length < expenseStore.pagination.total" class="d-flex justify-center mt-6">
+            <v-btn variant="outlined" class="load-more-btn" :loading="expenseStore.loading" @click="loadMoreExpenses">View More</v-btn>
+        </div>
         <v-dialog v-model="imageDialog" max-width="520">
             <v-card class="rounded-xl">
 
@@ -245,7 +236,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useExpenseStore } from "@/stores/expense";
 import { useTaxStore } from "@/stores/tax";
 import { useAuthStore } from "@/stores/auth";
@@ -300,13 +291,14 @@ const filters = ref({
     toDate: null,
 });
 
-const headers = [
-    { title: "Category", key: "category" },
-    { title: "Expense Date", key: "date" },
-    { title: "Amount", key: "amount" },
-    { title: "Notes", key: "description" },
-    { title: "Proof", key: "proof" }
-];
+const displayedExpenses = ref([]);
+watch(() => expenseStore.expenses, (list) => {
+    displayedExpenses.value = expenseStore.pagination.page === 1 ? list : [...displayedExpenses.value, ...list];
+});
+
+function loadMoreExpenses() {
+    expenseStore.setPage(expenseStore.pagination.page + 1);
+}
 
 const fileInput = ref(null)
 
@@ -374,6 +366,7 @@ const submitForm = async () => {
     await expenseStore.createExpense(payload);
 
     dialog.value = false;
+    expenseStore.pagination.page = 1;
     fetchData();
 };
 

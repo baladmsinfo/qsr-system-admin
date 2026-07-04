@@ -2,8 +2,8 @@
   <v-container class="py-8">
     <!-- Header -->
     <div class="d-flex flex-column align-center mb-8 text-center">
-      <h2 class="text-h4 font-weight-bold mb-2">Subscription Plans</h2>
-      <p class="text-body-1">
+      <h1 class="text-h4 font-weight-bold mb-2">Subscription Plans</h1>
+      <p class="text-body-1 text-medium-emphasis">
         Choose the right plan for your business — upgrade anytime.
       </p>
     </div>
@@ -11,52 +11,32 @@
     <!-- Plans -->
     <v-row align="stretch">
       <v-col v-for="plan in plansToShow" :key="plan.id" cols="12" md="4" class="d-flex">
-        <v-card class="plan-card flex-grow-1" elevation="8" rounded="xl">
-          <v-responsive aspect-ratio="16/5" class="bg-primary"></v-responsive>
+        <div class="app-card plan-card flex-grow-1 d-flex flex-column">
+          <div class="plan-card-hero"></div>
 
-          <v-card-title class="text-h6 font-weight-bold text-center mt-3">
+          <div class="text-h6 font-weight-bold text-center mt-4">
             {{ plan.name }}
-          </v-card-title>
+          </div>
 
-          <v-card-text class="text-center px-6">
+          <div class="text-center px-6 flex-grow-1">
             <p class="text-medium-emphasis mb-3">
               {{ plan.description }}
             </p>
 
             <div class="d-flex justify-center align-end mb-4">
-              <span class="text-h3 font-weight-bold">₹{{ plan.price }}</span>
+              <span class="text-h3 font-weight-bold mono-data">₹{{ plan.price }}</span>
               <span class="ml-1 text-body-2 text-medium-emphasis">/ {{ plan.interval }}</span>
             </div>
-
-            <!-- <v-chip
-              v-if="plan.trialDays"
-              color="success"
-              size="small"
-              class="mb-3"
-            >
-              🎉 {{ plan.trialDays }}-day Free Trial
-            </v-chip> -->
-          </v-card-text>
+          </div>
 
           <v-divider />
 
-          <v-card-actions class="d-flex flex-column px-4 pb-6">
-            <!-- <v-btn
-              block
-              variant="outlined"
-              color="success"
-              class="mb-2"
-              v-if="plan.trialDays && !plan.active"
-              @click="startTrial(plan)"
-            >
-              Start Free Trial
-            </v-btn> -->
-
+          <div class="d-flex flex-column px-4 py-4">
             <v-btn block color="primary" @click="openSubscribe(plan)">
               {{ plan.active ? 'Manage Subscription' : 'Subscribe Now' }}
             </v-btn>
-          </v-card-actions>
-        </v-card>
+          </div>
+        </div>
       </v-col>
     </v-row>
 
@@ -134,13 +114,15 @@ onMounted(async () => {
 <style scoped>
 .plan-card {
   overflow: hidden;
-  transition: 0.28s;
-  border: 2px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .plan-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--v-theme-primary);
-  box-shadow: 0px 16px 35px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+.plan-card-hero {
+  height: 64px;
+  background: linear-gradient(135deg, #4A3B78 0%, #6B6478 100%);
 }
 </style>

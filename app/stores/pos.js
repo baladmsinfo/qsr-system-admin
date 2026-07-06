@@ -61,6 +61,17 @@ export const usePOSStore = defineStore('pos', {
       }
     },
 
+    async createPrepayment(orderId, payload) {
+      const auth = useAuthStore()
+      const { $axios } = useNuxtApp()
+      const config = useRuntimeConfig()
+
+      const res = await $axios.post(`${config.public.API_ENDPOINT}/api/pos/orders/${orderId}/prepay`, payload, {
+        headers: { Authorization: `Bearer ${auth.token}` },
+      })
+      return res.data
+    },
+
     async refundOrder(orderId, payload) {
       const auth = useAuthStore()
       const { $axios } = useNuxtApp()

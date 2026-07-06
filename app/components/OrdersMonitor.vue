@@ -9,6 +9,19 @@
         density="compact" hide-details style="max-width: 220px" />
     </div>
 
+    <!-- Date range filter -->
+    <div class="app-header-bar px-5 py-4 mb-6">
+      <div class="d-flex flex-wrap align-center ga-3">
+        <v-btn color="primary" variant="flat" class="font-weight-medium" @click="cycleDateFilter">
+          {{ cycleLabel }}
+        </v-btn>
+        <v-text-field v-model="fromDate" type="date" label="From" density="compact" hide-details
+          style="max-width: 170px" @update:model-value="onCustomDateChange" />
+        <v-text-field v-model="toDate" type="date" label="To" density="compact" hide-details
+          style="max-width: 170px" @update:model-value="onCustomDateChange" />
+      </div>
+    </div>
+
     <div class="d-flex flex-wrap ga-2 mb-6">
       <v-chip v-for="tab in statusTabs" :key="tab.value" :color="statusFilter === tab.value ? 'primary' : undefined"
         :variant="statusFilter === tab.value ? 'flat' : 'tonal'" class="font-weight-medium" @click="statusFilter = tab.value">
@@ -17,7 +30,7 @@
     </div>
 
     <v-row>
-      <v-col v-for="order in filteredOrders" :key="order.id" cols="12" sm="6" md="4">
+      <v-col v-for="order in orders.orders" :key="order.id" cols="12" sm="6" md="4">
         <div class="app-card">
           <div class="pa-5">
             <div class="d-flex justify-space-between align-start mb-2">
@@ -30,8 +43,11 @@
 
             <v-divider class="my-2" />
 
-            <div v-for="item in order.orderItems" :key="item.id" class="d-flex justify-space-between text-body-2">
-              <span>{{ item.quantity }} &times; {{ item.menuItem?.name }}</span>
+            <div v-for="item in order.orderItems" :key="item.id" class="d-flex align-center ga-2 text-body-2 mb-1">
+              <v-avatar v-if="item.menuItem?.imageUrl" size="24" rounded="lg">
+                <v-img :src="item.menuItem.imageUrl" />
+              </v-avatar>
+              <span class="flex-grow-1">{{ item.quantity }} &times; {{ item.menuItem?.name }}</span>
               <span>{{ $formatPrice(item.total) }}</span>
             </div>
 
@@ -80,14 +96,19 @@
       </v-col>
     </v-row>
 
-    <div v-if="!filteredOrders.length" class="text-center text-medium-emphasis py-12">
-      No orders in this view
+    <div v-if="!orders.orders.length" class="text-center text-medium-emphasis py-12">
+      {{ orders.loading ? 'Loading orders...' : 'No orders in this view' }}
+    </div>
+
+    <div v-if="orders.hasMore" class="d-flex justify-center mt-6">
+      <v-btn variant="outlined" class="load-more-btn" :loading="orders.loading" @click="loadMore">View More</v-btn>
     </div>
   </v-container>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useOrdersStore } from '@/stores/orders'
 import { useAuthStore } from '@/stores/auth'
@@ -98,9 +119,66 @@ const auth = useAuthStore()
 const toast = useToast()
 const { isSuperAdmin, selectedBranchId, branchOptions } = useBranchSelector()
 const { $socket } = useNuxtApp()
+const route = useRoute()
+const router = useRouter()
 
-const statusFilter = ref('')
+const statusFilter = ref(typeof route.query.status === 'string' ? route.query.status : '')
 const busyId = ref(null)
+
+/* ---------------- Date range filter ---------------- */
+function pad(n) { return String(n).padStart(2, '0') }
+function toDateStr(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
+
+// Single button that cycles Today -> This Week -> This Month -> Today ...
+const cycleStages = [
+  { value: 'today', label: 'Today' },
+  { value: 'week', label: 'This Week' },
+  { value: 'month', label: 'This Month' },
+]
+
+function shortcutRange(key) {
+  const now = new Date()
+  const today = toDateStr(now)
+  if (key === 'today') return { from: today, to: today }
+  if (key === 'week') {
+    const day = (now.getDay() + 6) % 7 // Monday = 0
+    const monday = new Date(now)
+    monday.setDate(now.getDate() - day)
+    return { from: toDateStr(monday), to: today }
+  }
+  if (key === 'month') {
+    const first = new Date(now.getFullYear(), now.getMonth(), 1)
+    return { from: toDateStr(first), to: today }
+  }
+  return { from: '', to: '' }
+}
+
+const fromDate = ref(typeof route.query.fromDate === 'string' ? route.query.fromDate : '')
+const toDate = ref(typeof route.query.toDate === 'string' ? route.query.toDate : '')
+
+const cycleIndex = ref(0)
+
+// If the URL didn't specify a range, default this operational board to
+// "Today" - matches how Toast/Square default their live order views.
+if (!route.query.fromDate && !route.query.toDate) {
+  const today = shortcutRange('today')
+  fromDate.value = today.from
+  toDate.value = today.to
+}
+
+const cycleLabel = computed(() => cycleStages[cycleIndex.value].label)
+
+function cycleDateFilter() {
+  cycleIndex.value = (cycleIndex.value + 1) % cycleStages.length
+  const r = shortcutRange(cycleStages[cycleIndex.value].value)
+  fromDate.value = r.from
+  toDate.value = r.to
+  reload()
+}
+
+function onCustomDateChange() {
+  reload()
+}
 
 const statusTabs = [
   { value: '', label: 'All' },
@@ -156,10 +234,6 @@ function statusColor(status) {
   }[status] || 'grey'
 }
 
-const filteredOrders = computed(() =>
-  statusFilter.value ? orders.orders.filter((o) => o.status === statusFilter.value) : orders.orders
-)
-
 async function updateStatus(order, status) {
   busyId.value = order.id
   try {
@@ -174,10 +248,28 @@ async function updateStatus(order, status) {
   }
 }
 
-async function load() {
+function currentFilters() {
+  return {
+    status: statusFilter.value || undefined,
+    fromDate: fromDate.value || undefined,
+    toDate: toDate.value || undefined,
+  }
+}
+
+function syncUrl() {
+  router.replace({ query: { ...route.query, ...currentFilters() } }).catch(() => {})
+}
+
+async function reload() {
   if (!selectedBranchId.value) return
-  await orders.fetchOrders(selectedBranchId.value)
+  syncUrl()
+  await orders.fetchOrders(selectedBranchId.value, currentFilters())
   $socket.emit('join:branch', selectedBranchId.value)
+}
+
+async function loadMore() {
+  if (!selectedBranchId.value) return
+  await orders.fetchOrders(selectedBranchId.value, currentFilters(), { append: true })
 }
 
 function onOrderEvent(order) {
@@ -186,7 +278,7 @@ function onOrderEvent(order) {
 }
 
 onMounted(() => {
-  load()
+  reload()
   $socket.on('order:new', onOrderEvent)
   $socket.on('order:status', onOrderEvent)
   $socket.on('order:updated', onOrderEvent)
@@ -198,5 +290,6 @@ onBeforeUnmount(() => {
   $socket.off('order:updated', onOrderEvent)
 })
 
-watch(selectedBranchId, (val) => { if (val) load() })
+watch(selectedBranchId, (val) => { if (val) reload() })
+watch(statusFilter, () => reload())
 </script>

@@ -123,6 +123,6 @@ onMounted(async () => {
 
 .plan-card-hero {
   height: 64px;
-  background: linear-gradient(135deg, #4A3B78 0%, #6B6478 100%);
+  background: linear-gradient(135deg, #6D28D9 0%, #5B21B6 100%);
 }
 </style>

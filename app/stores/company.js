@@ -339,7 +339,7 @@ export const useCompanyStore = defineStore('company', {
             const config = useRuntimeConfig()
 
             try {
-                const res = await $axios.post(`${config.public.API_ENDPOINT}/upload`, formData, {
+                const res = await $axios.post(`${config.public.API_ENDPOINT}/api/upload`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         Authorization: `Bearer ${auth.token}`
@@ -357,6 +357,21 @@ export const useCompanyStore = defineStore('company', {
                 console.error('Store upload failed', err)
                 throw err
             }
+        },
+
+        // SUPERADMIN-only: replace the brand logo shown in the FE sidebar and
+        // every CUSTOMER-app page that displays this restaurant.
+        async updateCompanyLogo(logoUrl) {
+            const auth = useAuthStore()
+            const { $axios } = useNuxtApp()
+            const config = useRuntimeConfig()
+
+            const res = await $axios.patch(
+                `${config.public.API_ENDPOINT}/api/company/profile/logo`,
+                { logoUrl },
+                { headers: { Authorization: `Bearer ${auth.token}` } }
+            )
+            return res.data
         },
     }
 })

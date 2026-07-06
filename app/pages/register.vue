@@ -444,7 +444,7 @@ const submit = async () => {
 .register-card {
   border-radius: 20px;
   border: 1px solid #EAE6F2;
-  box-shadow: 0 24px 48px -16px rgba(74, 59, 120, 0.12);
+  box-shadow: 0 24px 48px -16px rgba(109, 40, 217, 0.14);
 }
 
 .section-card {
@@ -459,6 +459,6 @@ const submit = async () => {
   font-weight: 700;
   font-family: 'Manrope', sans-serif;
   font-size: 1.05rem;
-  color: #4A3B78;
+  color: #6D28D9;
 }
 </style>

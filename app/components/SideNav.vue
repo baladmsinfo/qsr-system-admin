@@ -2,9 +2,15 @@
     <v-navigation-drawer class="side-nav" v-model="drawerOpen" app :permanent="!mobile" :temporary="mobile" width="264">
         <template #prepend>
             <div class="d-flex align-center ga-3 px-5 pt-6 pb-5">
-                <div class="brand-mark d-flex align-center justify-center">
-                    <v-icon color="white" size="20">mdi-silverware-fork-knife</v-icon>
+                <div class="brand-mark d-flex align-center justify-center" :class="{ 'brand-mark--editable': isSuperAdmin }" @click="isSuperAdmin && logoInput?.click()">
+                    <v-img v-if="companyLogo" :src="companyLogo" cover class="w-100 h-100" />
+                    <span v-else class="text-white font-weight-bold text-subtitle-1">{{ companyInitial }}</span>
+                    <div v-if="isSuperAdmin" class="brand-mark-edit d-flex align-center justify-center">
+                        <v-progress-circular v-if="logoUploading" indeterminate size="14" width="2" color="white" />
+                        <v-icon v-else color="white" size="12">mdi-camera</v-icon>
+                    </div>
                 </div>
+                <input ref="logoInput" type="file" accept="image/*" class="d-none" @change="onLogoSelected" />
                 <div class="d-flex flex-column justify-center" style="min-width: 0">
                     <h2 class="text-subtitle-1 font-weight-bold mb-0 text-truncate">{{ companyName }}</h2>
                     <span class="text-caption text-medium-emphasis">{{ roleLabel }}</span>
@@ -140,20 +146,54 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
+import { useToast } from "vue-toastification";
 import { useAuthStore } from "@/stores/auth";
+import { useCompanyStore } from "@/stores/company";
 import { useNavDrawer } from "@/composables/useNavDrawer";
 import { storeToRefs } from "pinia";
 
 const router = useRouter();
 const { mobile } = useDisplay();
 const { drawerOpen } = useNavDrawer();
+const toast = useToast();
 const Auth = useAuthStore();
+const companyStore = useCompanyStore();
 const { userInfo, role } = storeToRefs(Auth);
 
 // Start collapsed on phones/tablets, open on desktop
 watch(mobile, (isMobile) => { drawerOpen.value = !isMobile }, { immediate: true })
 
 const companyName = computed(() => userInfo.value?.company?.name || "My Restaurant");
+const companyLogo = computed(() => userInfo.value?.company?.logoUrlLong || userInfo.value?.company?.logoUrlShort || null);
+const companyInitial = computed(() => companyName.value.trim().charAt(0).toUpperCase());
+
+const logoInput = ref(null);
+const logoUploading = ref(false);
+
+async function onLogoSelected(e) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    logoUploading.value = true;
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes = await companyStore.uploadImage(formData);
+        const logoUrl = uploadRes.data?.url;
+        if (!logoUrl) throw new Error("Upload did not return a URL");
+
+        const updateRes = await companyStore.updateCompanyLogo(logoUrl);
+        if (updateRes.statusCode === "00" && userInfo.value) {
+            userInfo.value.company = { ...userInfo.value.company, ...updateRes.data };
+        }
+        toast.success("Brand logo updated");
+    } catch (err) {
+        toast.error(err.response?.data?.message || "Failed to update the logo");
+    } finally {
+        logoUploading.value = false;
+    }
+}
 
 const roleLabels = {
     SUPERADMIN: "Super Admin", BRANCHADMIN: "Branch Admin", KITCHEN: "Kitchen",
@@ -199,6 +239,21 @@ onMounted(async () => {
     border-radius: 10px;
     background: rgb(var(--v-theme-primary));
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.brand-mark--editable {
+    cursor: pointer;
+}
+.brand-mark-edit {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.brand-mark--editable:hover .brand-mark-edit {
+    opacity: 1;
 }
 
 .side-nav-list :deep(.nav-item),

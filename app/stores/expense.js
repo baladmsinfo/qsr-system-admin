@@ -148,7 +148,7 @@ export const useExpenseStore = defineStore('expense', {
             const config = useRuntimeConfig()
 
             try {
-                const res = await $axios.post(`${config.public.API_ENDPOINT}/upload`, formData, {
+                const res = await $axios.post(`${config.public.API_ENDPOINT}/api/upload`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         Authorization: `Bearer ${auth.token}`

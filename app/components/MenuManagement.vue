@@ -28,15 +28,16 @@
 
         <v-row>
           <v-col v-for="item in visibleItems" :key="item.id" cols="12" sm="6" md="4" lg="3">
-            <div class="app-card pa-4 h-100 d-flex flex-column">
-              <div class="d-flex justify-space-between align-start mb-3">
-                <v-avatar size="44" rounded="lg" color="surface-variant">
-                  <v-img v-if="item.imageUrl" :src="item.imageUrl" />
-                  <v-icon v-else color="primary">mdi-food</v-icon>
-                </v-avatar>
+            <div class="app-card h-100 d-flex flex-column overflow-hidden menu-item-card">
+              <div class="position-relative">
+                <v-img v-if="item.imageUrl" :src="item.imageUrl" height="140" cover />
+                <div v-else class="d-flex align-center justify-center" style="height: 140px; background: #F3EEFF">
+                  <v-icon size="36" color="primary">mdi-food</v-icon>
+                </div>
+                <span class="veg-dot-badge" :class="item.isVeg ? 'is-veg' : 'is-nonveg'"><span /></span>
                 <v-menu>
                   <template #activator="{ props }">
-                    <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
+                    <v-btn size="small" variant="flat" color="white" icon="mdi-dots-vertical" class="item-menu-btn" v-bind="props" />
                   </template>
                   <v-list density="compact">
                     <v-list-item @click="openItemDialog(item)">
@@ -54,16 +55,18 @@
                 </v-menu>
               </div>
 
-              <div class="font-weight-bold mb-1">{{ item.name }}</div>
-              <div class="text-caption text-medium-emphasis mb-3">{{ item.category?.name || '—' }} &middot; {{ item.kitchenStation }}</div>
+              <div class="pa-4 d-flex flex-column flex-grow-1">
+                <div class="font-weight-bold mb-1">{{ item.name }}</div>
+                <div class="text-caption text-medium-emphasis mb-3">{{ item.category?.name || '—' }} &middot; {{ item.kitchenStation }}</div>
 
-              <v-spacer />
+                <v-spacer />
 
-              <div class="d-flex justify-space-between align-center mt-2">
-                <span class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(item.price) }}</span>
-                <v-chip size="small" :color="availabilityColor(item.availability)" variant="tonal">
-                  {{ item.availability.replace('_', ' ') }}
-                </v-chip>
+                <div class="d-flex justify-space-between align-center mt-2">
+                  <span class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(item.price) }}</span>
+                  <v-chip size="small" :color="availabilityColor(item.availability)" variant="tonal">
+                    {{ item.availability.replace('_', ' ') }}
+                  </v-chip>
+                </div>
               </div>
             </div>
           </v-col>
@@ -124,6 +127,24 @@
         </v-card-title>
         <v-card-text>
           <v-row dense>
+            <v-col cols="12">
+              <div class="d-flex align-center ga-4">
+                <div class="item-image-preview">
+                  <v-img v-if="itemForm.imageUrl" :src="itemForm.imageUrl" height="88" width="88" cover rounded="lg" />
+                  <div v-else class="d-flex align-center justify-center rounded-lg" style="height: 88px; width: 88px; background: #F3EEFF">
+                    <v-icon color="primary">mdi-food</v-icon>
+                  </div>
+                </div>
+                <div>
+                  <input ref="fileInput" type="file" accept="image/*" class="d-none" @change="onFileChange" />
+                  <v-btn size="small" variant="tonal" color="primary" prepend-icon="mdi-camera-outline"
+                    :loading="uploadingImage" @click="fileInput.click()">
+                    {{ itemForm.imageUrl ? 'Change Photo' : 'Upload Photo' }}
+                  </v-btn>
+                  <p class="text-caption text-medium-emphasis mt-1 mb-0">Shown on the customer menu, POS and admin screens</p>
+                </div>
+              </div>
+            </v-col>
             <v-col cols="12" md="8">
               <v-text-field v-model="itemForm.name" label="Name" />
             </v-col>
@@ -254,16 +275,38 @@ async function loadItems() {
 
 /* ITEM DIALOG */
 const itemDialog = ref(false)
+const fileInput = ref(null)
+const uploadingImage = ref(false)
 const emptyItem = () => ({
   id: null, name: '', description: '', price: 0, categoryId: null, subCategoryId: null,
   kitchenStation: 'MAIN', prepTimeMinutes: 10, taxRateId: null, isVeg: true,
   isRecommended: false, isPopular: false, spicyLevel: 0, tags: [], availability: 'AVAILABLE',
+  imageId: null, imageUrl: null,
 })
 const itemForm = ref(emptyItem())
 
 function openItemDialog(item = null) {
   itemForm.value = item ? { ...item } : emptyItem()
   itemDialog.value = true
+}
+
+async function onFileChange(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploadingImage.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await menu.uploadImage(formData)
+    if (res?.data?.id && res?.data?.url) {
+      itemForm.value.imageId = res.data.id
+      itemForm.value.imageUrl = res.data.url
+    }
+  } catch (err) {
+    console.error('Image upload failed', err)
+  } finally {
+    uploadingImage.value = false
+  }
 }
 
 async function submitItem() {
@@ -335,3 +378,35 @@ onMounted(async () => {
 
 watch(selectedBranchId, (val) => { if (val) loadItems() })
 </script>
+
+<style scoped>
+.menu-item-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.item-menu-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.veg-dot-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.veg-dot-badge span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.veg-dot-badge.is-veg span { background: #16A34A; }
+.veg-dot-badge.is-nonveg span { background: #DC2626; }
+</style>

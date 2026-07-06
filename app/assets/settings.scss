@@ -37,11 +37,11 @@ body {
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .app-card:hover {
-  box-shadow: 0 12px 28px -8px rgba(74, 59, 120, 0.12);
+  box-shadow: 0 12px 28px -8px rgba(109, 40, 217, 0.14);
 }
 .app-card--active {
-  border-color: #4A3B78;
-  box-shadow: 0 0 0 1px #4A3B78;
+  border-color: #6D28D9;
+  box-shadow: 0 0 0 1px #6D28D9;
 }
 
 // Page header bar (title + subtitle + action)

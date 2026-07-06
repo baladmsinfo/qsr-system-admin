@@ -37,37 +37,6 @@
       </v-col>
     </v-row>
 
-    <!-- RECENT ORDERS -->
-    <div class="d-flex justify-space-between align-center mt-10 mb-5">
-      <h2 class="text-h6 font-weight-bold mb-0">Recent Orders</h2>
-      <NuxtLink to="/admin/orders" class="text-body-2 font-weight-medium" style="color: rgb(var(--v-theme-primary)); text-decoration: none">
-        View All &rarr;
-      </NuxtLink>
-    </div>
-
-    <v-row>
-      <v-col v-for="order in recentOrders" :key="order.id" cols="12" sm="6" lg="4">
-        <div class="app-card pa-5 h-100 d-flex flex-column ga-3">
-          <div class="d-flex justify-space-between align-start">
-            <div>
-              <div class="text-subtitle-1 font-weight-bold">{{ order.table?.tableNo || 'Takeaway' }}</div>
-              <div class="text-caption text-medium-emphasis mono-data">#{{ order.id.slice(0, 8).toUpperCase() }}</div>
-            </div>
-            <v-chip size="small" :color="statusColor(order.status)" variant="tonal" class="text-uppercase font-weight-bold" style="font-size: 10px">
-              {{ order.status }}
-            </v-chip>
-          </div>
-          <div class="d-flex justify-space-between align-center mt-auto">
-            <span class="text-h6 font-weight-bold mono-data">{{ $formatPrice(order.totalAmount) }}</span>
-          </div>
-        </div>
-      </v-col>
-
-      <v-col v-if="!recentOrders.length" cols="12">
-        <div class="app-card pa-10 text-center text-medium-emphasis">No orders yet today</div>
-      </v-col>
-    </v-row>
-
     <!-- ACCOUNTING CHARTS (SUPERADMIN / BRANCHADMIN / ACCOUNTANT) -->
     <template v-if="canSeeAccounting">
       <h2 class="text-h6 font-weight-bold mt-10 mb-5">Cashflow Overview</h2>
@@ -136,6 +105,37 @@
         </v-col>
       </v-row>
     </template>
+
+        <!-- RECENT ORDERS -->
+    <div class="d-flex justify-space-between align-center mt-10 mb-5">
+      <h2 class="text-h6 font-weight-bold mb-0">Recent Orders</h2>
+      <NuxtLink to="/admin/orders" class="text-body-2 font-weight-medium" style="color: rgb(var(--v-theme-primary)); text-decoration: none">
+        View All &rarr;
+      </NuxtLink>
+    </div>
+
+    <v-row>
+      <v-col v-for="order in recentOrders" :key="order.id" cols="12" sm="6" lg="4">
+        <div class="app-card pa-5 h-100 d-flex flex-column ga-3">
+          <div class="d-flex justify-space-between align-start">
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">{{ order.table?.tableNo || 'Takeaway' }}</div>
+              <div class="text-caption text-medium-emphasis mono-data">#{{ order.id.slice(0, 8).toUpperCase() }}</div>
+            </div>
+            <v-chip size="small" :color="statusColor(order.status)" variant="tonal" class="text-uppercase font-weight-bold" style="font-size: 10px">
+              {{ order.status }}
+            </v-chip>
+          </div>
+          <div class="d-flex justify-space-between align-center mt-auto">
+            <span class="text-h6 font-weight-bold mono-data">{{ $formatPrice(order.totalAmount) }}</span>
+          </div>
+        </div>
+      </v-col>
+
+      <v-col v-if="!recentOrders.length" cols="12">
+        <div class="app-card pa-10 text-center text-medium-emphasis">No orders yet today</div>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -227,7 +227,7 @@ const chartOptions = computed(() => {
   return {
     chart: { toolbar: { show: false }, zoom: { enabled: false } },
     stroke: { curve: 'smooth', width: 3 },
-    colors: ['#4A3B78', '#C79A56'],
+    colors: ['#6D28D9', '#F59E0B'],
     xaxis: { categories: timeline?.labels ?? [] },
     legend: { position: 'top' },
     dataLabels: { enabled: false },

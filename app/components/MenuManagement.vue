@@ -190,6 +190,10 @@
             <v-col v-if="itemForm.unitType === 'CUSTOM'" cols="12" md="6">
               <v-text-field v-model="itemForm.customUnitLabel" label="Custom unit label" placeholder="e.g. pack, box, dozen" />
             </v-col>
+            <v-col v-if="itemForm.unitType" cols="12">
+              <v-switch v-model="itemForm.trackInventory" color="primary" hide-details
+                :label="itemForm.trackInventory ? 'Track inventory (branch stock is deducted per order)' : 'Unlimited stock (never runs out, not deducted)'" />
+            </v-col>
 
             <v-col cols="12" md="3">
               <v-switch v-model="itemForm.isVeg" label="Veg" color="success" />
@@ -307,7 +311,7 @@ const emptyItem = () => ({
   kitchenStation: 'MAIN', prepTimeMinutes: 10, taxRateId: null, isVeg: true,
   isRecommended: false, isPopular: false, spicyLevel: 0, tags: [], availability: 'AVAILABLE',
   imageId: null, imageUrl: null,
-  preparationType: 'PREPARED_FRESH', unitType: null, customUnitLabel: null,
+  preparationType: 'PREPARED_FRESH', unitType: null, customUnitLabel: null, trackInventory: true,
 })
 const itemForm = ref(emptyItem())
 

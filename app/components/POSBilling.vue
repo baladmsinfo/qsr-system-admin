@@ -1,36 +1,36 @@
 <template>
   <v-container fluid class="pa-4 pa-md-6">
-    <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
-      <div>
-        <h1 class="text-h5 font-weight-bold mb-0">POS / Billing</h1>
-        <p class="text-body-2 text-medium-emphasis mb-0">
-          {{ tab === 'new' ? 'Take a counter order and collect payment' : "Bill orders once they've been served" }}
-        </p>
-      </div>
-      <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" hide-details style="max-width: 220px" />
-    </div>
-
-    <div class="d-flex flex-wrap ga-2 mb-6">
-      <v-chip :color="tab === 'new' ? 'primary' : undefined" :variant="tab === 'new' ? 'flat' : 'tonal'"
-        class="font-weight-medium" @click="tab = 'new'">
-        New Order
-      </v-chip>
-      <v-chip :color="tab === 'bill' ? 'primary' : undefined" :variant="tab === 'bill' ? 'flat' : 'tonal'"
-        class="font-weight-medium" @click="tab = 'bill'">
-        Awaiting Bill
-        <v-avatar v-if="pos.pendingBills.length" size="18" color="error" class="ms-2 text-caption">
-          {{ pos.pendingBills.length }}
-        </v-avatar>
-      </v-chip>
-    </div>
-
     <v-window v-model="tab">
       <!-- ============ NEW ORDER (counter POS) ============ -->
       <v-window-item value="new">
         <v-row>
           <!-- Menu browser -->
-          <v-col cols="12" md="7" lg="8">
+          <v-col cols="12" md="8" lg="8">
+                <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+                <div>
+                  <h1 class="text-h5 font-weight-bold mb-0">POS / Billing</h1>
+                  <p class="text-body-2 text-medium-emphasis mb-0">
+                    {{ tab === 'new' ? 'Take a counter order and collect payment' : "Bill orders once they've been served" }}
+                  </p>
+                </div>
+                <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
+                  density="compact" hide-details style="max-width: 220px" />
+              </div>
+
+              <div class="d-flex flex-wrap ga-2 mb-6">
+                <v-chip :color="tab === 'new' ? 'primary' : undefined" :variant="tab === 'new' ? 'flat' : 'tonal'"
+                  class="font-weight-medium" @click="tab = 'new'">
+                  New Order
+                </v-chip>
+                <v-chip :color="tab === 'bill' ? 'primary' : undefined" :variant="tab === 'bill' ? 'flat' : 'tonal'"
+                  class="font-weight-medium" @click="tab = 'bill'">
+                  Awaiting Bill
+                  <v-avatar v-if="pos.pendingBills.length" size="18" color="error" class="ms-2 text-caption">
+                    {{ pos.pendingBills.length }}
+                  </v-avatar>
+                </v-chip>
+              </div>
+
             <v-text-field v-model="search" placeholder="Search menu items..." prepend-inner-icon="mdi-magnify"
               density="comfortable" hide-details clearable class="mb-4" />
 
@@ -88,7 +88,7 @@
           </v-col>
 
           <!-- Cart panel: fixed side panel on desktop -->
-          <v-col v-if="!mobile" cols="12" md="5" lg="4">
+          <v-col class="pos-cart-box" v-if="!mobile" cols="12" md="4" lg="4">
             <div class="app-card pa-4 pos-cart-panel">
               <POSCartPanel
                 ref="cartPanelRef"
@@ -517,10 +517,20 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
    own item-lines list scrolls internally (see POSCartPanel.vue), so the
    totals/payment buttons stay visible at all times without needing the
    outer page to scroll further. */
+
+.pos-cart-box {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 50px 0;
+}
+
 .pos-cart-panel {
-  position: sticky;
+  width: fit-content;
+  margin: 50px 0;
+  position: fixed;
   top: 16px;
-  height: calc(100vh - 32px);
+  height: calc(100vh - 132px);
   max-height: 780px;
 }
 
@@ -537,12 +547,10 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   background: rgb(var(--v-theme-primary));
   box-shadow: 0 8px 24px -4px rgba(109, 40, 217, 0.4);
 }
-/* A real height (not just max-height) so POSCartPanel's own h-100/flex-grow-1
-   internal scroll region has a definite ancestor size to resolve against -
-   the sheet itself no longer scrolls; only the item list inside does. */
+
 .pos-mobile-sheet {
-  height: 88vh;
-  max-height: 88vh;
+  height: 100vh;
+  max-height: 100vh;
   border-radius: 20px 20px 0 0 !important;
   overflow: hidden;
 }

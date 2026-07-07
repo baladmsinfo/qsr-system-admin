@@ -144,10 +144,12 @@
         <template v-else-if="step === 'upi'">
           <template v-if="!qrDataUrl">
             <p class="text-caption text-medium-emphasis mb-2">Generate a QR code for the customer to scan and pay.</p>
-            <v-btn block variant="tonal" color="primary" class="mb-2" @click="generateQr(false)">Generate QR</v-btn>
-            <v-btn block variant="tonal" color="primary" class="mb-2" @click="generateQr(true)">
-              Generate QR with Amount ({{ $formatPrice(total) }})
+            <v-btn block variant="tonal" color="primary" class="mb-2" @click="chooseMethod('Static QR', 'Paid via UPI (QR)', '#4CAF50')">
+              Paid via UPI (QR)
             </v-btn>
+            <!-- <v-btn block variant="tonal" color="primary" class="mb-2" @click="generateQr(true)">
+              Generate QR with Amount ({{ $formatPrice(total) }})
+            </v-btn> -->
             <v-btn block variant="text" :disabled="placing" @click="step = 'method'">Back</v-btn>
           </template>
           <template v-else>
@@ -218,8 +220,8 @@ const qrHasAmount = ref(false)
 const paymentOptions = [
   { method: 'CASH', label: 'Cash', icon: 'mdi-cash', color: '#D97706', caption: 'Pay at the counter' },
   { method: 'UPI', label: 'UPI', icon: 'mdi-qrcode', color: '#6D28D9', caption: 'Scan & pay instantly' },
-  { method: 'CARD', label: 'Credit Card', icon: 'mdi-credit-card', color: '#2563EB', caption: 'Visa, Mastercard & more' },
-  { method: 'CARD', label: 'Debit Card', icon: 'mdi-credit-card-outline', color: '#DB2777', caption: 'Debit / ATM card' },
+  { method: 'CARD', label: 'Credit / Debit Card', icon: 'mdi-credit-card', color: '#2563EB', caption: 'Visa, Mastercard & more' },
+  // { method: 'CARD', label: 'Debit Card', icon: 'mdi-credit-card-outline', color: '#DB2777', caption: 'Debit / ATM card' },
 ]
 
 function chooseMethod(method, label, color) {

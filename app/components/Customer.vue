@@ -19,16 +19,11 @@
         <div class="app-card pa-5 h-100 d-flex flex-column">
           <div class="d-flex justify-space-between align-start mb-2">
             <div class="font-weight-bold text-subtitle-1">{{ c.name }}</div>
-            <v-menu>
+            <ActionMenu :actions="customerMenuActions(c)">
               <template #activator="{ props }">
                 <v-btn size="small" variant="text" icon="mdi-dots-vertical" v-bind="props" />
               </template>
-              <v-list density="compact">
-                <v-list-item @click="viewCustomer(c.id)">View Details</v-list-item>
-                <v-list-item @click="openDialog(c)">Edit</v-list-item>
-                <v-list-item @click="confirmDelete(c)"><span class="text-error">Delete</span></v-list-item>
-              </v-list>
-            </v-menu>
+            </ActionMenu>
           </div>
           <div class="text-body-2 text-medium-emphasis mb-1">{{ c.email || '—' }}</div>
           <div class="text-body-2 text-medium-emphasis">{{ c.phone || '—' }}</div>
@@ -169,6 +164,7 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useCustomerStore } from "@/stores/customer";
+import ActionMenu from "@/components/ActionMenu.vue";
 
 const customerStore = useCustomerStore();
 
@@ -226,6 +222,14 @@ const confirmDelete = (item) => {
   selectedCustomer.value = item;
   deleteDialog.value = true;
 };
+
+function customerMenuActions(c) {
+  return [
+    { icon: "mdi-eye", color: "#2563EB", label: "View Details", onClick: () => viewCustomer(c.id) },
+    { icon: "mdi-pencil", color: "#6D28D9", label: "Edit", onClick: () => openDialog(c) },
+    { icon: "mdi-delete", color: "#DC2626", label: "Delete", onClick: () => confirmDelete(c), dividerBefore: true, danger: true },
+  ];
+}
 
 const deleteCustomer = async () => {
   if (selectedCustomer.value) {

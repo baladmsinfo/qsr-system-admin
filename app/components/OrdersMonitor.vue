@@ -44,11 +44,16 @@
             <v-divider class="my-2" />
 
             <div v-for="item in order.orderItems" :key="item.id" class="d-flex align-center ga-2 text-body-2 mb-1">
-              <v-avatar v-if="item.menuItem?.imageUrl" size="24" rounded="lg">
+              <v-avatar v-if="item.menuItem?.imageUrl" size="24" rounded="lg" :class="{ 'item-cancelled-avatar': item.status === 'CANCELLED' }">
                 <v-img :src="item.menuItem.imageUrl" />
               </v-avatar>
-              <span class="flex-grow-1">{{ item.quantity }} &times; {{ item.menuItem?.name }}</span>
-              <span>{{ $formatPrice(item.total) }}</span>
+              <span class="flex-grow-1" :class="{ 'item-cancelled-text': item.status === 'CANCELLED' }">
+                {{ item.quantity }} &times; {{ item.menuItem?.name }}
+              </span>
+              <v-chip v-if="item.status === 'CANCELLED'" size="x-small" color="error" variant="tonal">Cancelled</v-chip>
+              <span :class="{ 'item-cancelled-text': item.status === 'CANCELLED' }">{{ $formatPrice(item.total) }}</span>
+              <v-btn v-if="canCancelItem(order, item)" icon="mdi-close-circle-outline" size="x-small" variant="text"
+                color="error" :loading="cancellingItemId === item.id" @click="cancelSingleItem(order, item)" />
             </div>
 
             <v-divider class="my-2" />
@@ -124,6 +129,7 @@ const router = useRouter()
 
 const statusFilter = ref(typeof route.query.status === 'string' ? route.query.status : '')
 const busyId = ref(null)
+const cancellingItemId = ref(null)
 
 /* ---------------- Date range filter ---------------- */
 function pad(n) { return String(n).padStart(2, '0') }
@@ -206,7 +212,9 @@ function canDo(target) {
 }
 
 function allHandedOff(order) {
-  return order.kitchenTickets?.length > 0 && order.kitchenTickets.every((t) => t.status === 'COMPLETED')
+  // Vacuously true when there are no tickets at all (every item on the
+  // order was READY_TO_SERVE, so nothing was ever sent to the kitchen).
+  return (order.kitchenTickets || []).every((t) => ['COMPLETED', 'CANCELLED'].includes(t.status))
 }
 
 function primaryAction(order) {
@@ -225,6 +233,29 @@ function waitingMessage(order) {
 
 function canCancel(order) {
   return ['PLACED', 'ACCEPTED', 'PREPARING', 'READY'].includes(order.status) && canDo('CANCELLED')
+}
+
+// Individual items can be cancelled under the same conditions/role as
+// cancelling the whole order, as long as that particular item hasn't
+// already been served or cancelled.
+function canCancelItem(order, item) {
+  return canCancel(order) && !['SERVED', 'CANCELLED'].includes(item.status)
+}
+
+async function cancelSingleItem(order, item) {
+  cancellingItemId.value = item.id
+  try {
+    const res = await orders.cancelItems(order.id, [item.id])
+    if (res.statusCode !== '00') {
+      toast.error(res.message || 'That item could not be cancelled')
+    } else {
+      toast.success(`${item.menuItem?.name || 'Item'} cancelled`)
+    }
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'That item could not be cancelled')
+  } finally {
+    cancellingItemId.value = null
+  }
 }
 
 function statusColor(status) {
@@ -293,3 +324,13 @@ onBeforeUnmount(() => {
 watch(selectedBranchId, (val) => { if (val) reload() })
 watch(statusFilter, () => reload())
 </script>
+
+<style scoped>
+.item-cancelled-text {
+  text-decoration: line-through;
+  color: rgba(0, 0, 0, 0.4);
+}
+.item-cancelled-avatar {
+  opacity: 0.5;
+}
+</style>

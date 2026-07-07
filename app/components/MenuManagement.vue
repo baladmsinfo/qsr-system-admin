@@ -35,29 +35,25 @@
                   <v-icon size="36" color="primary">mdi-food</v-icon>
                 </div>
                 <span class="veg-dot-badge" :class="item.isVeg ? 'is-veg' : 'is-nonveg'"><span /></span>
-                <v-menu>
+                <ActionMenu :actions="itemMenuActions(item)">
                   <template #activator="{ props }">
                     <v-btn size="small" variant="flat" color="white" icon="mdi-dots-vertical" class="item-menu-btn" v-bind="props" />
                   </template>
-                  <v-list density="compact">
-                    <v-list-item @click="openItemDialog(item)">
-                      <template #prepend><v-icon size="18" class="me-2">mdi-pencil</v-icon></template>
-                      Edit
-                    </v-list-item>
-                    <v-list-item @click="menu.updateAvailability(item.id, 'AVAILABLE')">Mark Available</v-list-item>
-                    <v-list-item @click="menu.updateAvailability(item.id, 'OUT_OF_STOCK')">Mark Out of Stock</v-list-item>
-                    <v-list-item @click="menu.updateAvailability(item.id, 'HIDDEN')">Hide from menu</v-list-item>
-                    <v-list-item @click="confirmDeleteItem(item)">
-                      <template #prepend><v-icon size="18" class="me-2" color="error">mdi-delete</v-icon></template>
-                      <span class="text-error">Delete</span>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                </ActionMenu>
               </div>
 
               <div class="pa-4 d-flex flex-column flex-grow-1">
                 <div class="font-weight-bold mb-1">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis mb-3">{{ item.category?.name || '—' }} &middot; {{ item.kitchenStation }}</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ item.category?.name || '—' }} &middot; {{ item.kitchenStation }}</div>
+
+                <div class="d-flex flex-wrap ga-1 mb-2">
+                  <v-chip v-if="item.preparationType === 'READY_TO_SERVE'" size="x-small" color="info" variant="tonal" prepend-icon="mdi-lightning-bolt">
+                    Ready to Serve
+                  </v-chip>
+                  <v-chip v-if="item.unitType" size="x-small" color="secondary" variant="tonal" prepend-icon="mdi-scale-balance">
+                    Sold per {{ unitShortLabel(item) }}
+                  </v-chip>
+                </div>
 
                 <v-spacer />
 
@@ -149,7 +145,7 @@
               <v-text-field v-model="itemForm.name" label="Name" />
             </v-col>
             <v-col cols="12" md="4">
-              <v-text-field v-model.number="itemForm.price" label="Price" type="number" prefix="₹" />
+              <v-text-field v-model.number="itemForm.price" :label="priceLabel" type="number" prefix="₹" />
             </v-col>
             <v-col cols="12">
               <v-textarea v-model="itemForm.description" label="Description" rows="2" auto-grow />
@@ -170,6 +166,31 @@
             <v-col cols="12" md="4">
               <v-select v-model="itemForm.taxRateId" :items="taxOptions" label="Tax Rate" clearable />
             </v-col>
+
+            <v-col cols="12">
+              <v-divider class="my-2" />
+              <div class="text-caption font-weight-bold text-uppercase text-medium-emphasis mb-2">Preparation</div>
+              <v-radio-group v-model="itemForm.preparationType" inline hide-details density="compact">
+                <v-radio label="Prepared Fresh - needs the kitchen" value="PREPARED_FRESH" color="primary" />
+                <v-radio label="Ready to Serve - no cooking needed" value="READY_TO_SERVE" color="primary" />
+              </v-radio-group>
+              <p class="text-caption text-medium-emphasis mt-1 mb-0">
+                Ready to Serve items skip the Kitchen Display entirely and are handled immediately.
+              </p>
+            </v-col>
+
+            <v-col cols="12">
+              <v-divider class="my-2" />
+              <div class="text-caption font-weight-bold text-uppercase text-medium-emphasis mb-2">Quantity-based item (optional)</div>
+            </v-col>
+            <v-col cols="12" :md="itemForm.unitType === 'CUSTOM' ? 6 : 12">
+              <v-select v-model="itemForm.unitType" :items="unitTypeOptions" label="Sold by unit" clearable
+                hint="Leave blank for a normal fixed-price item ordered by count" persistent-hint />
+            </v-col>
+            <v-col v-if="itemForm.unitType === 'CUSTOM'" cols="12" md="6">
+              <v-text-field v-model="itemForm.customUnitLabel" label="Custom unit label" placeholder="e.g. pack, box, dozen" />
+            </v-col>
+
             <v-col cols="12" md="3">
               <v-switch v-model="itemForm.isVeg" label="Veg" color="success" />
             </v-col>
@@ -244,6 +265,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useMenuStore } from '@/stores/menu'
 import { useTaxStore } from '@/stores/tax'
 import { useBranchSelector } from '@/composables/useBranchSelector'
+import ActionMenu from '@/components/ActionMenu.vue'
+import { useUnitLabel } from '@/composables/useUnitLabel'
+
+const { unitShortLabel } = useUnitLabel()
 
 const menu = useMenuStore()
 const taxStore = useTaxStore()
@@ -282,12 +307,39 @@ const emptyItem = () => ({
   kitchenStation: 'MAIN', prepTimeMinutes: 10, taxRateId: null, isVeg: true,
   isRecommended: false, isPopular: false, spicyLevel: 0, tags: [], availability: 'AVAILABLE',
   imageId: null, imageUrl: null,
+  preparationType: 'PREPARED_FRESH', unitType: null, customUnitLabel: null,
 })
 const itemForm = ref(emptyItem())
+
+const unitTypeOptions = [
+  { title: 'Piece (pcs)', value: 'PIECE' },
+  { title: 'Gram (g)', value: 'GRAM' },
+  { title: 'Kilogram (kg)', value: 'KG' },
+  { title: 'Millilitre (ml)', value: 'ML' },
+  { title: 'Litre (L)', value: 'LITRE' },
+  { title: 'Custom unit...', value: 'CUSTOM' },
+]
+
+const priceLabel = computed(() => {
+  if (!itemForm.value.unitType) return 'Price'
+  return `Price per ${unitShortLabel(itemForm.value)}`
+})
 
 function openItemDialog(item = null) {
   itemForm.value = item ? { ...item } : emptyItem()
   itemDialog.value = true
+}
+
+// Color-as-utility: each action reads at a glance instead of a flat list of
+// identical grey text rows (matches the Drafts panel pattern on POS/Billing).
+function itemMenuActions(item) {
+  return [
+    { icon: 'mdi-pencil', color: '#6D28D9', label: 'Edit', onClick: () => openItemDialog(item) },
+    { icon: 'mdi-check-circle', color: '#16A34A', label: 'Mark Available', onClick: () => menu.updateAvailability(item.id, 'AVAILABLE') },
+    { icon: 'mdi-alert-circle', color: '#D97706', label: 'Mark Out of Stock', onClick: () => menu.updateAvailability(item.id, 'OUT_OF_STOCK') },
+    { icon: 'mdi-eye-off', color: '#6B7280', label: 'Hide from menu', onClick: () => menu.updateAvailability(item.id, 'HIDDEN') },
+    { icon: 'mdi-delete', color: '#DC2626', label: 'Delete', onClick: () => confirmDeleteItem(item), dividerBefore: true, danger: true },
+  ]
 }
 
 async function onFileChange(e) {

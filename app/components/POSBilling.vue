@@ -67,7 +67,10 @@
                       {{ item.availability === 'OUT_OF_STOCK' ? 'Out of stock' : 'Hidden' }}
                     </v-chip>
                     <v-spacer />
-                    <span class="font-weight-bold mono-data mt-2">{{ $formatPrice(item.price) }}</span>
+                    <div class="d-flex align-center justify-space-between mt-2">
+                      <span class="font-weight-bold mono-data">{{ $formatPrice(item.price) }}</span>
+                      <span v-if="item.unitType" class="text-caption text-medium-emphasis">/{{ unitShortLabel(item) }}</span>
+                    </div>
                   </div>
                 </div>
               </v-col>
@@ -217,6 +220,26 @@
       </v-card>
     </v-dialog>
 
+    <!-- Quantity entry for unit-based items (sold by weight/volume/count) -->
+    <v-dialog v-model="qtyDialog" max-width="360">
+      <v-card class="pa-4" v-if="qtyDialogItem">
+        <h3 class="text-h6 font-weight-bold mb-1">{{ qtyDialogItem.name }}</h3>
+        <p class="text-caption text-medium-emphasis mb-3">
+          {{ $formatPrice(qtyDialogItem.price) }} per {{ unitShortLabel(qtyDialogItem) }}
+        </p>
+        <v-text-field v-model.number="qtyDialogValue" type="number" :suffix="unitShortLabel(qtyDialogItem)"
+          label="Quantity" autofocus min="0" @keyup.enter="confirmQtyDialog" />
+        <div class="d-flex justify-space-between align-center mt-2">
+          <span class="text-body-2 text-medium-emphasis">Line total</span>
+          <span class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(qtyDialogItem.price * (qtyDialogValue || 0)) }}</span>
+        </div>
+        <div class="d-flex justify-end ga-2 mt-4">
+          <v-btn variant="text" @click="qtyDialog = false">Cancel</v-btn>
+          <v-btn color="primary" @click="confirmQtyDialog">Add to Order</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+
   </v-container>
 </template>
 
@@ -230,8 +253,11 @@ import { useTableStore } from '@/stores/tables'
 import { useCustomerStore } from '@/stores/customer'
 import { usePosDraftsStore } from '@/stores/posDrafts'
 import { useBranchSelector } from '@/composables/useBranchSelector'
+import { useUnitLabel } from '@/composables/useUnitLabel'
 import { useDisplay } from 'vuetify'
 import POSCartPanel from '@/components/POSCartPanel.vue'
+
+const { unitShortLabel } = useUnitLabel()
 
 const pos = usePOSStore()
 const orders = useOrdersStore()
@@ -278,15 +304,46 @@ const loadedDraftId = ref(null)
 
 const tableOptions = computed(() => tableStore.tables.map((t) => ({ title: t.tableNo, value: t.id })))
 
+// Quantity-based items (sold by weight/volume/piece-count) need an actual
+// amount typed in, not a blind +1 - the dialog below collects that before
+// the line is added.
+const qtyDialog = ref(false)
+const qtyDialogItem = ref(null)
+const qtyDialogValue = ref(1)
+
 function addToCart(item) {
   if (item.availability !== 'AVAILABLE') return
-  const existing = cart.value.find((l) => l.menuItemId === item.id)
+
+  if (item.unitType) {
+    qtyDialogItem.value = item
+    qtyDialogValue.value = 1
+    qtyDialog.value = true
+    return
+  }
+
+  const existing = cart.value.find((l) => l.menuItemId === item.id && !l.unitType)
   if (existing) existing.quantity += 1
   else cart.value.push({ menuItemId: item.id, name: item.name, price: item.price, quantity: 1, remarks: '', taxRate: item.taxRate?.rate || 0 })
 }
 
+function confirmQtyDialog() {
+  const item = qtyDialogItem.value
+  const qty = Number(qtyDialogValue.value)
+  if (!item || !qty || qty <= 0) return
+
+  const existing = cart.value.find((l) => l.menuItemId === item.id)
+  if (existing) existing.quantity += qty
+  else {
+    cart.value.push({
+      menuItemId: item.id, name: item.name, price: item.price, quantity: qty, remarks: '',
+      taxRate: item.taxRate?.rate || 0, unitType: item.unitType, customUnitLabel: item.customUnitLabel,
+    })
+  }
+  qtyDialog.value = false
+}
+
 function updateQty(idx, qty) {
-  if (qty < 1) { cart.value.splice(idx, 1); return }
+  if (qty <= 0) { cart.value.splice(idx, 1); return }
   cart.value[idx].quantity = qty
 }
 

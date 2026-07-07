@@ -50,9 +50,18 @@
           <div v-for="(line, idx) in cart" :key="idx" class="d-flex justify-space-between align-center py-2 cart-line">
             <div class="flex-grow-1 pe-2">
               <div class="text-body-2 font-weight-bold cart-item-name">{{ line.name }}</div>
-              <div class="text-caption text-medium-emphasis mono-data">{{ $formatPrice(line.price) }} each</div>
+              <div class="text-caption text-medium-emphasis mono-data">
+                {{ $formatPrice(line.price) }} {{ line.unitType ? `per ${unitShortLabel(line)}` : 'each' }}
+              </div>
             </div>
-            <div class="d-flex align-center ga-1">
+            <div v-if="line.unitType" class="d-flex align-center ga-1">
+              <v-text-field :model-value="line.quantity" type="number" density="compact" hide-details
+                :suffix="unitShortLabel(line)" style="width: 110px" :disabled="step !== 'cart'"
+                @update:model-value="(v) => $emit('update-qty', idx, Number(v))" />
+              <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="step !== 'cart'"
+                @click="$emit('remove-line', idx)" />
+            </div>
+            <div v-else class="d-flex align-center ga-1">
               <v-btn icon="mdi-minus" size="x-small" variant="tonal" :disabled="step !== 'cart'"
                 @click="$emit('update-qty', idx, line.quantity - 1)" />
               <span class="font-weight-bold mono-data text-center" style="min-width: 22px">{{ line.quantity }}</span>
@@ -163,6 +172,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import QRCode from 'qrcode'
+import { useUnitLabel } from '@/composables/useUnitLabel'
+
+const { unitShortLabel } = useUnitLabel()
 
 const props = defineProps({
   cart: { type: Array, required: true },

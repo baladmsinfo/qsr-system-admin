@@ -54,6 +54,11 @@
                 </v-list-item>
             </v-list-group>
 
+            <v-list-item v-if="canManageBranch" :to="'/admin/inventory'" link class="nav-item">
+                <v-icon class="me-3" size="24">mdi-clipboard-list-outline</v-icon>
+                <span class="text-subtitle-2">Inventory</span>
+            </v-list-item>
+
             <v-list-item v-if="canSeeCustomers" :to="'/admin/customer'" link class="nav-item">
                 <v-icon class="me-3" size="24">mdi-account-group-outline</v-icon>
                 <span class="text-subtitle-2">Customers</span>

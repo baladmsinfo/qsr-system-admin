@@ -47,6 +47,20 @@ export const useKitchenStore = defineStore('kitchen', {
       return res.data
     },
 
+    async dismissTicket(id, branchId) {
+      const auth = useAuthStore()
+      const { $axios } = useNuxtApp()
+      const config = useRuntimeConfig()
+
+      const res = await $axios.patch(
+        `${config.public.API_ENDPOINT}/api/kitchen/tickets/${id}/dismiss`,
+        {},
+        { headers: { Authorization: `Bearer ${auth.token}` }, params: { branchId } }
+      )
+      if (res.data.statusCode === '00') this.tickets = this.tickets.filter((t) => t.id !== id)
+      return res.data
+    },
+
     upsertTicket(ticket) {
       const idx = this.tickets.findIndex((t) => t.id === ticket.id)
       if (idx === -1) this.tickets.unshift(ticket)

@@ -90,6 +90,20 @@ export const useOrdersStore = defineStore('orders', {
       return res.data
     },
 
+    async cancelItems(id, itemIds) {
+      const auth = useAuthStore()
+      const { $axios } = useNuxtApp()
+      const config = useRuntimeConfig()
+
+      const res = await $axios.patch(
+        `${config.public.API_ENDPOINT}/api/orders/${id}/items/cancel`,
+        { itemIds },
+        { headers: { Authorization: `Bearer ${auth.token}` } }
+      )
+      if (res.data.statusCode === '00') this.upsertOrder(res.data.data)
+      return res.data
+    },
+
     async moveTable(id, tableId) {
       const auth = useAuthStore()
       const { $axios } = useNuxtApp()

@@ -77,22 +77,19 @@ import { ref, reactive, watch, onMounted } from 'vue'
 import QRCode from 'qrcode'
 import { useTableStore } from '@/stores/tables'
 import { useBranchSelector } from '@/composables/useBranchSelector'
-import { useAuthStore } from '@/stores/auth'
 
 const tableStore = useTableStore()
 const { isSuperAdmin, selectedBranchId, branchOptions } = useBranchSelector()
-const auth = useAuthStore()
 const config = useRuntimeConfig()
 
 const qrImages = reactive({})
 
 async function buildQrImages() {
-  // Every customer-facing URL is scoped under the company's own tenant slug
-  // (white-label isolation) - a table's QR must resolve into ITS company's
-  // branded app, never a bare/ambiguous URL.
-  const tenant = auth.userInfo?.company?.tenant
+  // table.qrCode is already a globally-unique id that the backend resolves
+  // straight to its branch/company (see GET /api/public/qr/:qrCode) - the
+  // Customer app only exposes a bare /t/:qrCode route, with no tenant segment.
   for (const table of tableStore.tables) {
-    const menuUrl = `${config.public.CUSTOMER_URL}/${tenant}/t/${table.qrCode}`
+    const menuUrl = `${config.public.CUSTOMER_URL}/t/${table.qrCode}`
     qrImages[table.id] = await QRCode.toDataURL(menuUrl, { width: 200, margin: 1 })
   }
 }

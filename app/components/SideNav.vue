@@ -124,9 +124,9 @@
                     <span class="text-subtitle-2">Banner Setup</span>
                 </v-list-item>
 
-                <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
+                <!-- <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
                     <span class="text-subtitle-2">Subscription</span>
-                </v-list-item>
+                </v-list-item> -->
             </v-list-group>
 
             <v-list-item v-if="canManageBranch" :to="'/admin/manageuser'" link class="nav-item">

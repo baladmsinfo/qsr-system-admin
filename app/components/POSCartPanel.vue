@@ -117,7 +117,7 @@
           <p class="text-caption text-medium-emphasis mb-2 text-uppercase font-weight-medium">Select payment method</p>
           <div class="payment-tile-grid mb-2">
             <div v-for="opt in paymentOptions" :key="opt.label" class="payment-tile"
-              :style="{ '--tile-color': opt.color }" @click="chooseMethod(opt.method, opt.label, opt.color)">
+              :style="{ '--tile-color': opt.color }" @click="chooseMethod(opt.method, opt.label, opt.color, opt.method === 'UPI' ? false : true)">
               <div class="payment-tile-badge" :style="{ background: opt.color }">
                 <v-icon color="white" size="20">{{ opt.icon }}</v-icon>
               </div>
@@ -144,7 +144,7 @@
         <template v-else-if="step === 'upi'">
           <template v-if="!qrDataUrl">
             <p class="text-caption text-medium-emphasis mb-2">Generate a QR code for the customer to scan and pay.</p>
-            <v-btn block variant="tonal" color="primary" class="mb-2" @click="chooseMethod('Static QR', 'Paid via UPI (QR)', '#4CAF50')">
+            <v-btn block variant="tonal" color="primary" class="mb-2" @click="chooseMethod('UPI', 'Paid via UPI (QR)', '#4CAF50', true)">
               Paid via UPI (QR)
             </v-btn>
             <!-- <v-btn block variant="tonal" color="primary" class="mb-2" @click="generateQr(true)">
@@ -224,12 +224,12 @@ const paymentOptions = [
   // { method: 'CARD', label: 'Debit Card', icon: 'mdi-credit-card-outline', color: '#DB2777', caption: 'Debit / ATM card' },
 ]
 
-function chooseMethod(method, label, color) {
+function chooseMethod(method, label, color, confirm = true) {
   selectedMethod.value = method
   methodLabel.value = label || (method === 'CASH' ? 'Cash' : method)
   selectedColor.value = color || '#6D28D9'
   qrDataUrl.value = ''
-  step.value = method === 'UPI' ? 'upi' : 'confirm'
+  step.value = confirm ? 'confirm' : 'upi'
 }
 
 async function generateQr(withAmount) {

@@ -155,7 +155,7 @@ const expense = useExpenseStore()
 const orders = useOrdersStore()
 const { isSuperAdmin, selectedBranchId, branchOptions } = useBranchSelector()
 
-const companyName = computed(() => userInfo.value?.company?.name || 'My Restaurant')
+const companyName = computed(() => userInfo.value?.company?.name || 'My Business')
 const roleLabels = {
   SUPERADMIN: 'Super Admin', BRANCHADMIN: 'Branch Admin', KITCHEN: 'Kitchen',
   CASHIER: 'Cashier', WAITER: 'Waiter', ACCOUNTANT: 'Accountant',

@@ -5,7 +5,7 @@
     <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
       <div>
         <h1 class="text-h5 font-weight-bold mb-0">Banners</h1>
-        <p class="text-body-2 text-medium-emphasis mb-0">Manage company homepage banners</p>
+        <p class="text-body-2 text-medium-emphasis mb-0">Manage business homepage banners</p>
       </div>
       <v-btn color="primary" prepend-icon="mdi-plus" @click="openBannerDialog">
         Add Banner

@@ -7,7 +7,7 @@
         <div class="app-header-bar d-flex flex-wrap justify-space-between align-center mb-6 px-5 py-4 ga-3">
             <div>
                 <h1 class="text-h5 font-weight-bold mb-0">Branch Management</h1>
-                <p class="text-body-2 text-medium-emphasis mb-0">All restaurant branches under your company</p>
+                <p class="text-body-2 text-medium-emphasis mb-0">All branches under your business</p>
             </div>
 
             <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
@@ -123,10 +123,10 @@
 
                         </div>
 
-                        <!-- Restaurant Operations Section -->
+                        <!-- Business Operations Section -->
                         <div class="mt-2">
                             <h4 class="text-subtitle-1 font-weight-bold mb-3">
-                                Restaurant Operations
+                                Business Operations
                             </h4>
 
                             <v-row>

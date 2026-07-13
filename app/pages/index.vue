@@ -12,10 +12,10 @@
 
         <div>
           <h1 class="text-h3 font-weight-bold text-white mb-4" style="max-width: 480px; letter-spacing: -0.02em">
-            Run your entire restaurant from one calm, organized place.
+            Run your entire business from one calm, organized place.
           </h1>
           <p class="text-body-1 text-white" style="opacity: 0.75; max-width: 420px">
-            Menu, tables, live orders, kitchen display and billing &mdash; all in a single platform built for modern restaurants.
+            Menu, tables, live orders, kitchen display and billing &mdash; all in a single platform built for modern businesses.
           </p>
         </div>
 
@@ -41,7 +41,7 @@
             </v-btn>
 
             <v-btn block variant="outlined" color="primary" size="large" @click="goToRegister">
-              Create a Restaurant Account
+              Create a Business Account
             </v-btn>
           </v-form>
         </div>

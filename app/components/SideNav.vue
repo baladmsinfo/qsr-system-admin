@@ -52,6 +52,9 @@
                 <v-list-item :to="'/admin/tables'" link class="nav-subitem">
                     <span class="text-subtitle-2">Tables &amp; QR</span>
                 </v-list-item>
+                <v-list-item :to="'/admin/menu-qr'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Menu Card QR</span>
+                </v-list-item>
             </v-list-group>
 
             <v-list-item v-if="canManageBranch" :to="'/admin/inventory'" link class="nav-item">
@@ -168,7 +171,7 @@ const { userInfo, role } = storeToRefs(Auth);
 // Start collapsed on phones/tablets, open on desktop
 watch(mobile, (isMobile) => { drawerOpen.value = !isMobile }, { immediate: true })
 
-const companyName = computed(() => userInfo.value?.company?.name || "My Restaurant");
+const companyName = computed(() => userInfo.value?.company?.name || "My Business");
 const companyLogo = computed(() => userInfo.value?.company?.logoUrlLong || userInfo.value?.company?.logoUrlShort || null);
 const companyInitial = computed(() => companyName.value.trim().charAt(0).toUpperCase());
 

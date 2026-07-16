@@ -127,6 +127,10 @@
                     <span class="text-subtitle-2">Banner Setup</span>
                 </v-list-item>
 
+                <v-list-item :to="'/admin/storefront-content'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Storefront Content</span>
+                </v-list-item>
+
                 <!-- <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
                     <span class="text-subtitle-2">Subscription</span>
                 </v-list-item> -->

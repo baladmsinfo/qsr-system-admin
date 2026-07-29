@@ -131,6 +131,30 @@
                     <span class="text-subtitle-2">Storefront Content</span>
                 </v-list-item>
 
+                <v-list-item :to="'/admin/website-builder'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Website Builder</span>
+                </v-list-item>
+
+                <v-list-item :to="'/admin/payment-gateways'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Payment Gateways</span>
+                </v-list-item>
+
+                <v-list-item :to="'/admin/printers'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Printers</span>
+                </v-list-item>
+
+                <v-list-item :to="'/admin/receipt-templates'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Receipt Templates</span>
+                </v-list-item>
+
+                <v-list-item :to="'/admin/receipt-designer'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Receipt Designer</span>
+                </v-list-item>
+
+                <v-list-item :to="'/admin/print-history'" link class="nav-subitem">
+                    <span class="text-subtitle-2">Print History</span>
+                </v-list-item>
+
                 <!-- <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
                     <span class="text-subtitle-2">Subscription</span>
                 </v-list-item> -->

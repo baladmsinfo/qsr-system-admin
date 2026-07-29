@@ -1,0 +1,36 @@
+/* Website Builder only - imported solely by app/pages/admin/website-builder/index.vue.
+   No @tailwind base (preflight) here - see tailwind.config.js comment; we don't
+   want a global element reset leaking onto the rest of the Vuetify app. */
+@tailwind components;
+@tailwind utilities;
+
+.wb-root {
+  font-family: var(--theme-font-body, "Inter", ui-sans-serif, system-ui, sans-serif);
+  background-color: var(--theme-background, #f8fafc);
+  color: var(--theme-text, #0f172a);
+  min-height: 100vh;
+}
+
+.wb-root h1,
+.wb-root h2,
+.wb-root h3,
+.wb-root h4,
+.wb-root h5,
+.wb-root h6 {
+  font-family: var(--theme-font-heading, inherit);
+}
+
+.wb-root.dark {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+/* GrapesJS's default theme reserves ~15% width on the right for its own
+   style-manager panel - we don't use that panel system at all (Properties
+   are our own Vue sidebar), so the canvas is forced to actually fill its
+   container instead of leaving that space permanently blank. */
+.gjs-cv-canvas {
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+}

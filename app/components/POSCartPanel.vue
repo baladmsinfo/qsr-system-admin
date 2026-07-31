@@ -1,7 +1,7 @@
 <template>
-  <div class="d-flex flex-column h-100">
-    <!-- Header (fixed within the panel) -->
-    <div class="d-flex justify-space-between align-center mb-3 flex-shrink-0">
+  <div class="pos-cart-panel-root">
+    <!-- Header -->
+    <div class="d-flex justify-space-between align-center mb-3">
       <span class="text-subtitle-1 font-weight-bold">Order Summary</span>
       <v-menu v-if="draftsList.length" :close-on-content-click="false">
         <template #activator="{ props }">
@@ -38,61 +38,61 @@
       </v-menu>
     </div>
 
-    <div v-if="!cart.length" class="text-center text-medium-emphasis py-10 flex-grow-1">
+    <div v-if="!cart.length" class="text-center text-medium-emphasis py-10">
       <v-icon size="40" color="grey">mdi-cart-outline</v-icon>
       <p class="mt-2 mb-0 text-body-2">Tap a menu item to add it to the order</p>
     </div>
 
     <template v-else>
-      <!-- Scrollable middle: cart lines + fields (only when on the base 'cart' step) -->
-      <div class="flex-grow-1 overflow-y-auto pe-1">
-        <div class="cart-lines mb-3">
-          <div v-for="(line, idx) in cart" :key="idx" class="d-flex justify-space-between align-center py-2 cart-line">
-            <div class="flex-grow-1 pe-2">
-              <div class="text-body-2 font-weight-bold cart-item-name">{{ line.name }}</div>
-              <div class="text-caption text-medium-emphasis mono-data">
-                {{ $formatPrice(line.price) }} {{ line.unitType ? `per ${unitShortLabel(line)}` : 'each' }}
-              </div>
-            </div>
-            <div v-if="line.unitType" class="d-flex align-center ga-1">
-              <v-text-field :model-value="line.quantity" type="number" density="compact" hide-details
-                :suffix="unitShortLabel(line)" style="width: 110px" :disabled="step !== 'cart'"
-                @update:model-value="(v) => $emit('update-qty', idx, Number(v))" />
-              <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="step !== 'cart'"
-                @click="$emit('remove-line', idx)" />
-            </div>
-            <div v-else class="d-flex align-center ga-1">
-              <v-btn icon="mdi-minus" size="x-small" variant="tonal" :disabled="step !== 'cart'"
-                @click="$emit('update-qty', idx, line.quantity - 1)" />
-              <span class="font-weight-bold mono-data text-center" style="min-width: 22px">{{ line.quantity }}</span>
-              <v-btn icon="mdi-plus" size="x-small" variant="tonal" :disabled="step !== 'cart'"
-                @click="$emit('update-qty', idx, line.quantity + 1)" />
-              <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="step !== 'cart'"
-                @click="$emit('remove-line', idx)" />
+      <div class="cart-lines mb-3">
+        <div v-for="(line, idx) in cart" :key="idx" class="d-flex justify-space-between align-center py-2 cart-line">
+          <div class="flex-grow-1 pe-2">
+            <div class="text-body-2 font-weight-bold cart-item-name">{{ line.name }}</div>
+            <div class="text-caption text-medium-emphasis mono-data">
+              {{ $formatPrice(line.price) }} {{ line.unitType ? `per ${unitShortLabel(line)}` : 'each' }}
             </div>
           </div>
+          <div v-if="line.unitType" class="d-flex align-center ga-1">
+            <v-text-field :model-value="line.quantity" type="number" density="compact" hide-details
+              :suffix="unitShortLabel(line)" style="width: 110px" :disabled="step !== 'cart'"
+              @update:model-value="(v) => $emit('update-qty', idx, Number(v))" />
+            <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="step !== 'cart'"
+              @click="$emit('remove-line', idx)" />
+          </div>
+          <div v-else class="d-flex align-center ga-1">
+            <v-btn icon="mdi-minus" size="x-small" variant="tonal" :disabled="step !== 'cart'"
+              @click="$emit('update-qty', idx, line.quantity - 1)" />
+            <span class="font-weight-bold mono-data text-center" style="min-width: 22px">{{ line.quantity }}</span>
+            <v-btn icon="mdi-plus" size="x-small" variant="tonal" :disabled="step !== 'cart'"
+              @click="$emit('update-qty', idx, line.quantity + 1)" />
+            <v-btn icon="mdi-close" size="x-small" variant="text" color="error" :disabled="step !== 'cart'"
+              @click="$emit('remove-line', idx)" />
+          </div>
         </div>
-
-        <template v-if="step === 'cart'">
-          <v-select v-model="tableId" :items="tableOptions" label="Table (optional - blank = takeaway)"
-            clearable density="comfortable" class="mb-2" />
-
-          <v-expansion-panels variant="accordion" class="mb-3">
-            <v-expansion-panel title="Customer details (optional)">
-              <v-expansion-panel-text>
-                <v-text-field v-model="customerName" label="Name" density="comfortable" class="mb-2" />
-                <v-text-field v-model="customerPhone" label="Phone" density="comfortable" hide-details />
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-
-          <v-textarea v-model="notes" label="Notes for the kitchen (optional)" rows="2" density="comfortable"
-            class="mb-3" />
-        </template>
       </div>
 
-      <!-- Fixed footer: totals + action area, always visible -->
-      <div class="flex-shrink-0">
+      <template v-if="step === 'cart'">
+        <v-select v-model="tableId" :items="tableOptions" label="Table (optional - blank = takeaway)"
+          clearable density="comfortable" class="mb-2" />
+
+        <v-expansion-panels variant="accordion" class="mb-3">
+          <v-expansion-panel title="Customer details (optional)">
+            <v-expansion-panel-text>
+              <v-text-field v-model="customerName" label="Name" density="comfortable" class="mb-2" />
+              <v-text-field v-model="customerPhone" label="Phone" density="comfortable" hide-details />
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
+
+        <v-textarea v-model="notes" label="Notes for the kitchen (optional)" rows="2" density="comfortable"
+          class="mb-3" />
+      </template>
+
+      <!-- Totals + action area - sticky to the bottom of whichever ancestor
+           scrolls (desktop's fixed-height panel, or the mobile bottom
+           sheet), so it's always reachable no matter how tall the cart
+           lines/fields above get. -->
+      <div class="pos-cart-footer">
         <v-divider class="mb-3" />
         <div class="d-flex justify-space-between text-body-2 mb-1">
           <span>Subtotal</span><span class="mono-data">{{ $formatPrice(subtotal) }}</span>
@@ -201,7 +201,7 @@ const { $formatPrice } = useNuxtApp()
 
 // Cycles through the palette so a list of drafts reads as distinct,
 // scannable rows rather than a flat monochrome list.
-const DRAFT_COLORS = ['#6D28D9', '#D97706', '#2563EB', '#DB2777', '#16A34A']
+const DRAFT_COLORS = ['#7C3AED', '#D97706', '#2563EB', '#DB2777', '#16A34A']
 function draftColor(idx) {
   return DRAFT_COLORS[idx % DRAFT_COLORS.length]
 }
@@ -210,7 +210,7 @@ function draftColor(idx) {
 const step = ref('cart')
 const selectedMethod = ref('CASH')
 const methodLabel = ref('Cash')
-const selectedColor = ref('#6D28D9')
+const selectedColor = ref('#7C3AED')
 const qrDataUrl = ref('')
 const qrHasAmount = ref(false)
 
@@ -219,7 +219,7 @@ const qrHasAmount = ref(false)
 // distinguished on modern QSR POS terminals).
 const paymentOptions = [
   { method: 'CASH', label: 'Cash', icon: 'mdi-cash', color: '#D97706', caption: 'Pay at the counter' },
-  { method: 'UPI', label: 'UPI', icon: 'mdi-qrcode', color: '#6D28D9', caption: 'Scan & pay instantly' },
+  { method: 'UPI', label: 'UPI', icon: 'mdi-qrcode', color: '#7C3AED', caption: 'Scan & pay instantly' },
   { method: 'CARD', label: 'Credit / Debit Card', icon: 'mdi-credit-card', color: '#2563EB', caption: 'Visa, Mastercard & more' },
   // { method: 'CARD', label: 'Debit Card', icon: 'mdi-credit-card-outline', color: '#DB2777', caption: 'Debit / ATM card' },
 ]
@@ -227,7 +227,7 @@ const paymentOptions = [
 function chooseMethod(method, label, color, confirm = true) {
   selectedMethod.value = method
   methodLabel.value = label || (method === 'CASH' ? 'Cash' : method)
-  selectedColor.value = color || '#6D28D9'
+  selectedColor.value = color || '#7C3AED'
   qrDataUrl.value = ''
   step.value = confirm ? 'confirm' : 'upi'
 }
@@ -257,6 +257,22 @@ defineExpose({ resetStep: () => { step.value = 'cart'; qrDataUrl.value = '' } })
 </script>
 
 <style scoped>
+.pos-cart-panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sticky within whichever ancestor scrolls (the desktop panel or the mobile
+   bottom sheet - see POSBilling.vue), so totals/payment actions stay
+   reachable and visible regardless of how tall the content above is. */
+.pos-cart-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 4px;
+  margin-top: 4px;
+}
+
 /* Bounded AND scrollable in its own right - without overflow-y here, content
    taller than max-height visually spills out and overlaps whatever follows
    (the Table select / Customer details fields), instead of scrolling. */
@@ -265,13 +281,13 @@ defineExpose({ resetStep: () => { step.value = 'cart'; qrDataUrl.value = '' } })
   overflow-y: auto;
 }
 .cart-line {
-  border-top: 1px solid #EAE6F2;
+  border-top: 1px solid #EEE9F7;
 }
 .cart-line:first-child {
   border-top: none;
 }
 .cart-item-name {
-  color: #D97706;
+  color: #1A1626;
 }
 .wrap-btn-text :deep(.v-btn__content) {
   white-space: normal;
@@ -300,12 +316,12 @@ defineExpose({ resetStep: () => { step.value = 'cart'; qrDataUrl.value = '' } })
   min-width: 300px;
   max-width: 340px;
   background: #fff;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
 }
 .drafts-panel-header {
   color: #5B5566;
-  border-bottom: 1px solid #EAE6F2;
+  border-bottom: 1px solid #EEE9F7;
 }
 .drafts-panel-list {
   max-height: 320px;
@@ -334,7 +350,7 @@ defineExpose({ resetStep: () => { step.value = 'cart'; qrDataUrl.value = '' } })
 }
 .draft-count-pill {
   background: #F3EEFF;
-  color: #6D28D9;
+  color: #7C3AED;
   font-size: 11px;
   font-weight: 700;
   padding: 1px 8px;
@@ -357,8 +373,8 @@ defineExpose({ resetStep: () => { step.value = 'cart'; qrDataUrl.value = '' } })
   gap: 10px;
 }
 .payment-tile {
-  border: 1px solid #EAE6F2;
-  border-radius: 16px;
+  border: 1px solid #EEE9F7;
+  border-radius: 18px;
   padding: 14px 12px;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;

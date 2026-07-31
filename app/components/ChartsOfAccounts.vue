@@ -22,7 +22,7 @@
         <div class="app-card mb-2">
           <div v-for="(acc, idx) in list" :key="acc.id" class="d-flex justify-space-between align-center px-5 py-3 cursor-pointer"
             :class="{ 'account-row--selected': selectedAccountId === acc.id }"
-            :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''" @click="selectedAccountId = acc.id">
+            :style="idx > 0 ? 'border-top: 1px solid #EEE9F7' : ''" @click="selectedAccountId = acc.id">
             <div class="d-flex align-center ga-2">
               <span class="font-weight-medium">{{ acc.name }}</span>
               <v-btn v-if="selectedAccountId === acc.id && !protectedAccounts.includes(acc.name)" color="error"

@@ -367,7 +367,7 @@ const confirmDelete = item => {
 function vendorMenuActions(v) {
   return [
     { icon: 'mdi-eye', color: '#2563EB', label: 'View Details', onClick: () => viewVendor(v.id) },
-    { icon: 'mdi-pencil', color: '#6D28D9', label: 'Edit', onClick: () => openDialog(v) },
+    { icon: 'mdi-pencil', color: '#7C3AED', label: 'Edit', onClick: () => openDialog(v) },
     { icon: 'mdi-delete', color: '#DC2626', label: 'Delete', onClick: () => confirmDelete(v), dividerBefore: true, danger: true },
   ]
 }

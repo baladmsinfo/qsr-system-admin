@@ -24,7 +24,7 @@
 
           <h3 class="text-h6 font-weight-bold mb-3">{{ table.tableNo }}</h3>
 
-          <v-img :src="qrImages[table.id]" width="160" height="160" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #EAE6F2" />
+          <v-img :src="qrImages[table.id]" width="160" height="160" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #EEE9F7" />
 
           <div class="d-flex justify-center ga-2">
             <v-btn size="small" variant="tonal" icon="mdi-pencil" @click="openDialog(table)" />

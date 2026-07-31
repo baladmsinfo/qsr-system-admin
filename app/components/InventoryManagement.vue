@@ -168,7 +168,7 @@ const statusFilters = [
 const summaryTiles = computed(() => {
   const s = inventory.summary
   return [
-    { label: 'Tracked Items', value: s.total, icon: 'mdi-clipboard-list-outline', color: '#6D28D9' },
+    { label: 'Tracked Items', value: s.total, icon: 'mdi-clipboard-list-outline', color: '#7C3AED' },
     { label: 'In Stock', value: s.inStock, icon: 'mdi-check-circle-outline', color: '#16A34A' },
     { label: 'Low Stock', value: s.lowStock, icon: 'mdi-alert-outline', color: '#D97706' },
     { label: 'Out of Stock', value: s.outOfStock, icon: 'mdi-close-circle-outline', color: '#DC2626' },
@@ -313,7 +313,7 @@ watch(selectedBranchId, (val) => { if (val) load() })
 
 .unit-pill {
   background: #F3EEFF;
-  color: #6D28D9;
+  color: #7C3AED;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;

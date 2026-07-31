@@ -16,7 +16,7 @@
         <div class="app-card pa-4 text-center">
           <h3 class="text-h6 font-weight-bold mb-3">{{ menuQrStore.branch.name }}</h3>
 
-          <v-img :src="qrImage" width="200" height="200" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #EAE6F2" />
+          <v-img :src="qrImage" width="200" height="200" class="mx-auto mb-3 rounded-lg" style="border: 1px solid #EEE9F7" />
 
           <p class="text-caption text-medium-emphasis mb-3">Table-independent - one QR covers this branch's entire menu</p>
 

@@ -48,7 +48,7 @@
 
           <v-row v-else dense>
             <v-col v-for="u in item.users" :key="u.id" cols="12" md="6">
-              <div class="d-flex justify-space-between align-center pa-3" style="background: #FBFAFD; border: 1px solid #EAE6F2; border-radius: 12px">
+              <div class="d-flex justify-space-between align-center pa-3" style="background: #FBFAFD; border: 1px solid #EEE9F7; border-radius: 12px">
                 <div>
                   <div class="font-weight-medium">{{ u.name }}</div>
                   <div class="text-caption text-medium-emphasis">{{ u.email }}</div>

@@ -1,10 +1,13 @@
 <template>
-  <v-container fluid>
+  <v-container v-if="!isMobile" fluid>
     <TrialBalance />
   </v-container>
+  <TrialBalanceMobile v-else />
 </template>
 
 <script setup>
+import { useDevice } from '@/composables/useDevice'
+const { isMobile } = useDevice()
 
 definePageMeta({
     layout: "sidenav",

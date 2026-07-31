@@ -1,80 +1,286 @@
 /**
- * Vuetify SASS variable overrides - Bucksbox "Artisanal Operations" theme.
+ * Vuetify SASS variable overrides - Bucksbox "Soft Premium" theme.
  * Overriding these two variables retints every Vuetify typography class
  * (text-h1..h6, text-body-*, text-subtitle-*, text-caption) app-wide.
  */
+// NOTE: Vuetify's rounded-* scale (component `rounded` prop AND the
+// `.rounded-lg`/`.rounded-xl`/etc utility classes) all multiply this root
+// value ('lg' = root*2, 'xl' = root*6) - keep this modest. An earlier 18px
+// value made 'xl' compute to 108px, turning small cards/dialogs into
+// pill/oval blobs instead of rounded rectangles.
 @use 'vuetify/settings' with (
-  $body-font-family: ('Inter', sans-serif),
-  $heading-font-family: ('Manrope', sans-serif),
-  $border-radius-root: 10px
+  $body-font-family: ('Hanken Grotesk', sans-serif),
+  $heading-font-family: ('Hanken Grotesk', sans-serif),
+  $border-radius-root: 12px
 );
 
 // Self-hosted via @nuxt/fonts (auto-detected from these font-family references)
 * {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
 }
 
 .text-h1, .text-h2, .text-h3, .text-h4, .text-h5, .text-h6,
 .font-weight-bold, .font-weight-semibold, .v-card-title, .v-toolbar-title {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-// Numeric / status / mono data - receipt-like precision
+// Numeric / status data - tabular figures instead of a separate mono face
 .mono-data, .v-chip {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 body {
-  background-color: #FAF9FC;
+  background-color: #F8F6FC;
+  background-image: radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.05), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(219, 39, 119, 0.04), transparent 45%);
+  background-attachment: fixed;
 }
 
-// Shared card surface - flat tonal card with hover lift instead of heavy shadow
+// Gradient utilities - primary actions, active states, highlights only
+.gradient-primary-bg {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%) !important;
+  color: #fff !important;
+}
+.gradient-primary-text {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.glass-surface {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+// Any existing `color="primary"` filled button automatically renders the
+// gradient - no markup changes needed anywhere the app already uses it.
+.v-btn.bg-primary {
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%) !important;
+  box-shadow: 0 8px 20px -6px rgba(124, 58, 237, 0.45);
+}
+
+// Shared card surface - soft ambient shadow + hairline instead of a hover-only lift
 .app-card {
   background: #fff;
-  border: 1px solid #EAE6F2;
-  border-radius: 16px;
+  border: 1px solid #EEE9F7;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px -10px rgba(124, 58, 237, 0.12);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .app-card:hover {
-  box-shadow: 0 12px 28px -8px rgba(109, 40, 217, 0.14);
+  box-shadow: 0 14px 32px -8px rgba(124, 58, 237, 0.18);
 }
 .app-card--active {
-  border-color: #6D28D9;
-  box-shadow: 0 0 0 1px #6D28D9;
+  border-color: #7C3AED;
+  box-shadow: 0 0 0 1px #7C3AED;
 }
 
 // Page header bar (title + subtitle + action)
 .app-header-bar {
   background: #fff;
-  border: 1px solid #EAE6F2;
-  border-radius: 16px;
+  border: 1px solid #EEE9F7;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px -10px rgba(124, 58, 237, 0.1);
 }
 
 // Bento-style KPI tile
 .stat-tile {
   background: #fff;
-  border: 1px solid #EAE6F2;
-  border-radius: 16px;
+  border: 1px solid #EEE9F7;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px -10px rgba(124, 58, 237, 0.1);
   padding: 20px;
 }
 .stat-tile .stat-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #5B5566;
 }
 .stat-tile .stat-value {
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 32px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
   color: #1A1626;
 }
 
 // "View More" load-more affordance used instead of table pagination
 .load-more-btn {
-  border: 1px dashed #D8D2E8;
+  border: 1px dashed #DCD2F0;
   border-radius: 9999px;
+}
+
+// ---------------------------------------------------------------------------
+// VSelect / VAutocomplete / VCombobox dropdown menu - Vuetify hardcodes these
+// popup menus (.v-select__content / .v-autocomplete__content) to a flat 4px
+// radius and a plain grey Material shadow regardless of theme overrides, so
+// every dropdown app-wide (branch pickers, filters, form selects) looked
+// visually disconnected from the rounded/soft-shadow card language used
+// everywhere else. This retints the popup itself plus its list items in one
+// place, so it applies to every select/autocomplete in the app.
+// ---------------------------------------------------------------------------
+.v-select__content,
+.v-autocomplete__content {
+  border-radius: 18px !important;
+  box-shadow: 0 16px 40px -12px rgba(124, 58, 237, 0.28) !important;
+  border: 1px solid #EEE9F7;
+  margin-top: 6px;
+}
+
+.v-select__content .v-list,
+.v-autocomplete__content .v-list {
+  padding: 6px;
+}
+
+.v-select__content .v-list-item,
+.v-autocomplete__content .v-list-item {
+  border-radius: 12px;
+  min-height: 44px;
+  margin-bottom: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.v-select__content .v-list-item--active,
+.v-autocomplete__content .v-list-item--active {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%) !important;
+}
+
+.v-select__content .v-list-item--active .v-list-item-title,
+.v-autocomplete__content .v-list-item--active .v-list-item-title {
+  color: rgb(var(--v-theme-primary));
+  font-weight: 700;
+}
+
+.v-select__content .v-list-item:hover:not(.v-list-item--active),
+.v-autocomplete__content .v-list-item:hover:not(.v-list-item--active) {
+  background: #F8F6FC;
+}
+
+// ---------------------------------------------------------------------------
+// Mobile layout: Vuetify's px-5/py-4/pa-6/text-h5 spacing & type utilities are
+// fixed-pixel (not breakpoint-responsive), so every page header bar and page
+// container gets the desktop-sized padding at all widths unless overridden
+// here. This targets the shared .app-header-bar / .app-card / container
+// classes used across all pages instead of patching each page individually.
+// ---------------------------------------------------------------------------
+@media (max-width: 600px) {
+  .app-header-bar {
+    flex-wrap: wrap !important;
+    padding: 12px 14px !important;
+    margin-bottom: 16px !important;
+    gap: 10px !important;
+    border-radius: 12px;
+  }
+  .app-header-bar h1 {
+    font-size: 1.125rem !important;
+    line-height: 1.4 !important;
+  }
+  .app-header-bar p {
+    font-size: 0.75rem !important;
+  }
+  // Branch/date selects in header bars carry inline max-width caps (e.g.
+  // 220-260px) that leave them stranded with dead space once wrapped below
+  // the title on a narrow screen - let them fill the row instead.
+  .app-header-bar .v-select,
+  .app-header-bar .v-autocomplete,
+  .app-header-bar .v-text-field {
+    max-width: 100% !important;
+    width: 100%;
+  }
+
+  .v-container.pa-6,
+  .v-container.pa-8,
+  .v-container.pa-4.pa-md-6,
+  .v-container.pa-4.pa-md-8 {
+    padding: 12px !important;
+  }
+
+  .app-card {
+    border-radius: 16px;
+  }
+
+  .stat-tile {
+    padding: 14px !important;
+  }
+  .stat-tile .stat-value {
+    font-size: 24px !important;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1 mobile redesign: shared primitives (MobilePageHeader, MobileBottomNav,
+// MobileBottomSheet, MobileFullscreenDialog, MobileStatCard, etc.) and the
+// phone-only app shell. `isMobile` in JS (useDevice.js) is pinned to the same
+// "xs" / 600px breakpoint used here, so JS component-swapping and this CSS
+// never disagree about where "mobile" starts.
+// ---------------------------------------------------------------------------
+:root {
+  --mobile-bottom-nav-height: 64px;
+}
+
+@media (max-width: 600px) {
+  // Reserve space so page content never sits under the fixed bottom nav.
+  .mobile-shell-main {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mobile-bottom-nav {
+    height: var(--mobile-bottom-nav-height);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid #EEE9F7;
+  }
+
+  .mobile-bottom-sheet {
+    border-radius: 24px 24px 0 0 !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-fullscreen-dialog .v-card {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-action-bar {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  // Groups a MobilePageHeader + MobileSearchBar (both rendered with
+  // :sticky="false") into a single sticky unit, so they scroll away together
+  // and re-stick together - avoids two independent top:0 sticky elements
+  // overlapping once both are pinned.
+  .mobile-sticky-stack {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  // 44px minimum touch target (Apple HIG / Material) - scoped to <=600px only,
+  // so desktop/tablet button sizing is never affected.
+  .v-btn:not(.v-btn--icon) {
+    min-height: 44px;
+  }
+  .v-btn.v-btn--icon {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-bottom-sheet,
+  .mobile-fullscreen-dialog,
+  .mobile-order-card {
+    transition: none !important;
+  }
 }

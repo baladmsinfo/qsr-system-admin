@@ -449,11 +449,11 @@ const submit = async () => {
 
 <style scoped>
 .register-page {
-  background: #FAF9FC;
+  background: #F8F6FC;
 }
 
 .brand-panel {
-  background: linear-gradient(160deg, #6D28D9 0%, #5B21B6 100%);
+  background: linear-gradient(160deg, #7C3AED 0%, #DB2777 100%);
 }
 
 .brand-mark-lg {
@@ -468,7 +468,7 @@ const submit = async () => {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #6D28D9;
+  background: #7C3AED;
   flex-shrink: 0;
 }
 
@@ -507,11 +507,11 @@ const submit = async () => {
 .step-track-item.is-active .step-track-marker {
   background: #fff;
   border-color: #fff;
-  color: #6D28D9;
+  color: #7C3AED;
 }
 
 .step-track-item.is-active .step-track-marker span {
-  color: #6D28D9;
+  color: #7C3AED;
 }
 
 .step-track-item.is-done .step-track-marker {
@@ -540,12 +540,12 @@ const submit = async () => {
   height: 4px;
   border-radius: 2px;
   flex: 1;
-  background: #EAE6F2;
+  background: #EEE9F7;
   transition: background 0.2s ease;
 }
 
 .mobile-step-bar.is-active {
-  background: #6D28D9;
+  background: linear-gradient(90deg, #7C3AED 0%, #DB2777 100%);
 }
 
 .form-panel {
@@ -570,15 +570,15 @@ const submit = async () => {
 }
 
 .form-panel-actions {
-  border-top: 1px solid #EAE6F2;
+  border-top: 1px solid #EEE9F7;
   background: #fff;
   flex-shrink: 0;
 }
 
 .section-card {
   background: #FBFAFD;
-  border: 1px solid #EAE6F2;
-  border-radius: 14px;
+  border: 1px solid #EEE9F7;
+  border-radius: 18px;
 }
 
 .section-card--muted {
@@ -589,9 +589,9 @@ const submit = async () => {
   display: flex;
   align-items: center;
   font-weight: 700;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif;
   font-size: 1.05rem;
-  color: #6D28D9;
+  color: #7C3AED;
 }
 
 .section-switch :deep(.v-label) {

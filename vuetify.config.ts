@@ -1,23 +1,23 @@
 import { defineVuetifyConfiguration } from "vuetify-nuxt-module/custom-configuration";
 
-// Bucksbox Signature design system - a vivid violet + warm amber palette
-// shared identically with the CUSTOMER app, tonal surfaces instead of
-// shadows, card-based layouts throughout.
+// Bucksbox "Soft Premium" design system - a purple-to-pink gradient accent
+// (used sparingly for primary actions/active states) over soft off-white
+// layered surfaces, shared identically with the CUSTOMER app.
 export default defineVuetifyConfiguration({
   theme: {
     defaultTheme: "light",
     themes: {
       light: {
         colors: {
-          primary: "#6D28D9", // Bucksbox violet - buttons, active nav, links, headline accents
-          "primary-darken-1": "#5B21B6",
-          secondary: "#6B6478", // purple-tinted slate for secondary text/icons
-          accent: "#F59E0B", // warm amber - highlights, badges, secondary CTAs
+          primary: "#7C3AED", // Bucksbox purple - buttons, active nav, links, headline accents
+          "primary-darken-1": "#6D28D9",
+          secondary: "#DB2777", // pink - gradient end-stop, secondary highlights
+          accent: "#F59E0B", // warm amber - status highlights, badges (semantic, keep)
           success: "#16A34A",
           warning: "#D97706",
           error: "#DC2626",
           info: "#4A6FA5",
-          background: "#FAFAFC",
+          background: "#F8F6FC",
           surface: "#FFFFFF",
           "surface-variant": "#F3EEFF",
           "on-surface-variant": "#5B5566",
@@ -28,10 +28,13 @@ export default defineVuetifyConfiguration({
   defaults: {
     VBtn: { rounded: "pill", class: "text-none font-weight-medium" },
     VCard: { rounded: "lg" },
-    VTextField: { variant: "outlined", density: "comfortable", color: "primary" },
-    VSelect: { variant: "outlined", density: "comfortable", color: "primary" },
-    VTextarea: { variant: "outlined", density: "comfortable", color: "primary" },
-    VAutocomplete: { variant: "outlined", density: "comfortable", color: "primary" },
+    VDialog: { rounded: "lg" },
+    VSheet: { rounded: "lg" },
+    VBottomSheet: { rounded: "t-lg" },
+    VTextField: { variant: "outlined", density: "comfortable", color: "primary", rounded: "lg" },
+    VSelect: { variant: "outlined", density: "comfortable", color: "primary", rounded: "lg" },
+    VTextarea: { variant: "outlined", density: "comfortable", color: "primary", rounded: "lg" },
+    VAutocomplete: { variant: "outlined", density: "comfortable", color: "primary", rounded: "lg" },
     VChip: { rounded: "pill" },
   },
 });

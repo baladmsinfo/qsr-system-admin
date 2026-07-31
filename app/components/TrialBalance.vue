@@ -45,7 +45,7 @@
             </div>
 
             <div v-for="(item, idx) in group.items" :key="idx" class="d-flex justify-space-between px-5 py-3 tb-row"
-              style="border-top: 1px solid #EAE6F2">
+              style="border-top: 1px solid #EEE9F7">
               <span class="tb-cell">{{ item.accountName }}</span>
               <div class="d-flex ga-6">
                 <span class="text-right mono-data tb-cell" style="min-width: 100px">{{ $formatPrice(item.debit) }}</span>

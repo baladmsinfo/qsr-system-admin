@@ -338,7 +338,7 @@ function openItemDialog(item = null) {
 // identical grey text rows (matches the Drafts panel pattern on POS/Billing).
 function itemMenuActions(item) {
   return [
-    { icon: 'mdi-pencil', color: '#6D28D9', label: 'Edit', onClick: () => openItemDialog(item) },
+    { icon: 'mdi-pencil', color: '#7C3AED', label: 'Edit', onClick: () => openItemDialog(item) },
     { icon: 'mdi-check-circle', color: '#16A34A', label: 'Mark Available', onClick: () => menu.updateAvailability(item.id, 'AVAILABLE') },
     { icon: 'mdi-alert-circle', color: '#D97706', label: 'Mark Out of Stock', onClick: () => menu.updateAvailability(item.id, 'OUT_OF_STOCK') },
     { icon: 'mdi-eye-off', color: '#6B7280', label: 'Hide from menu', onClick: () => menu.updateAvailability(item.id, 'HIDDEN') },

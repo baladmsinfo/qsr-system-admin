@@ -1,12 +1,12 @@
 <template>
   <v-container fluid class="pa-4 pa-md-8">
-    <div class="d-flex flex-wrap justify-space-between align-center mb-8 ga-3">
+    <div class="d-flex flex-wrap justify-space-between align-center mb-4 mb-sm-8 ga-3">
       <div>
-        <h1 class="text-h4 font-weight-bold mb-1">Dashboard</h1>
+        <h1 class="text-h5 text-sm-h4 font-weight-bold mb-1">Dashboard</h1>
         <p class="text-body-2 text-medium-emphasis mb-0">{{ companyName }} &middot; {{ roleLabel }}</p>
       </div>
       <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-        density="compact" hide-details style="max-width: 220px" />
+        density="compact" hide-details class="header-branch-select" />
     </div>
 
     <!-- KPI ROW (Bento) -->
@@ -227,7 +227,7 @@ const chartOptions = computed(() => {
   return {
     chart: { toolbar: { show: false }, zoom: { enabled: false } },
     stroke: { curve: 'smooth', width: 3 },
-    colors: ['#6D28D9', '#F59E0B'],
+    colors: ['#7C3AED', '#F59E0B'],
     xaxis: { categories: timeline?.labels ?? [] },
     legend: { position: 'top' },
     dataLabels: { enabled: false },
@@ -253,3 +253,15 @@ onMounted(async () => {
 
 watch(selectedBranchId, (val) => { if (val) loadOrders() })
 </script>
+
+<style scoped>
+.header-branch-select {
+  max-width: 220px;
+}
+@media (max-width: 600px) {
+  .header-branch-select {
+    max-width: 100%;
+    width: 100%;
+  }
+}
+</style>

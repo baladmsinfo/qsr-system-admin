@@ -26,7 +26,7 @@
         <div class="app-card">
             <div v-for="(item, idx) in displayedJournals" :key="item.id"
                 class="d-flex flex-wrap justify-space-between align-center px-5 py-4 ga-3"
-                :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+                :style="idx > 0 ? 'border-top: 1px solid #EEE9F7' : ''">
                 <div style="min-width: 160px">
                     <div class="text-caption text-medium-emphasis">{{ new Date(item.date).toLocaleDateString() }}</div>
                     <div class="font-weight-bold">{{ item.account.name }}</div>

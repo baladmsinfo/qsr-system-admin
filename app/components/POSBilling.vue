@@ -1,50 +1,94 @@
 <template>
-  <v-container fluid class="pa-4 pa-md-6">
+  <v-container fluid :class="isMobile ? 'pa-0' : 'pa-4 pa-md-6'">
     <v-window v-model="tab">
       <!-- ============ NEW ORDER (counter POS) ============ -->
       <v-window-item value="new">
         <v-row>
           <!-- Menu browser -->
           <v-col cols="12" md="8" lg="8">
-                <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
-                <div>
-                  <h1 class="text-h5 font-weight-bold mb-0">POS / Billing</h1>
-                  <p class="text-body-2 text-medium-emphasis mb-0">
-                    {{ tab === 'new' ? 'Take a counter order and collect payment' : "Bill orders once they've been served" }}
-                  </p>
+              <template v-if="isMobile">
+                <div class="mobile-sticky-stack pos-mobile-header-stack">
+                  <MobilePageHeader title="POS / Billing" :sticky="false"
+                    :subtitle="tab === 'new' ? 'Take a counter order and collect payment' : &quot;Bill orders once they've been served&quot;">
+                    <template #action>
+                      <MobileBranchPicker v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" />
+                    </template>
+                    <div class="d-flex ga-2">
+                      <v-chip :color="tab === 'new' ? 'primary' : undefined" :variant="tab === 'new' ? 'flat' : 'tonal'"
+                        size="small" class="font-weight-medium" @click="tab = 'new'">
+                        New Order
+                      </v-chip>
+                      <!-- Awaiting Bill tab hidden per request - v-window-item value="bill" kept intact below
+                      <v-chip :color="tab === 'bill' ? 'primary' : undefined" :variant="tab === 'bill' ? 'flat' : 'tonal'"
+                        size="small" class="font-weight-medium" @click="tab = 'bill'">
+                        Awaiting Bill
+                        <v-avatar v-if="pos.pendingBills.length" size="16" color="error" class="ms-2 text-caption">
+                          {{ pos.pendingBills.length }}
+                        </v-avatar>
+                      </v-chip>
+                      -->
+                    </div>
+                  </MobilePageHeader>
+
+                  <MobileSearchBar v-model="search" placeholder="Search menu items..." :sticky="false">
+                    <template #chips>
+                      <v-chip :color="!categoryFilter ? 'primary' : undefined" :variant="!categoryFilter ? 'flat' : 'tonal'"
+                        size="small" class="font-weight-medium flex-shrink-0" @click="categoryFilter = null">All</v-chip>
+                      <v-chip v-for="cat in menu.categories" :key="cat.id"
+                        :color="categoryFilter === cat.id ? 'primary' : undefined"
+                        :variant="categoryFilter === cat.id ? 'flat' : 'tonal'" size="small"
+                        class="font-weight-medium flex-shrink-0" @click="categoryFilter = cat.id">
+                        {{ cat.name }}
+                      </v-chip>
+                    </template>
+                  </MobileSearchBar>
                 </div>
-                <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
-                  density="compact" hide-details style="max-width: 220px" />
-              </div>
+              </template>
 
-              <div class="d-flex flex-wrap ga-2 mb-6">
-                <v-chip :color="tab === 'new' ? 'primary' : undefined" :variant="tab === 'new' ? 'flat' : 'tonal'"
-                  class="font-weight-medium" @click="tab = 'new'">
-                  New Order
-                </v-chip>
-                <v-chip :color="tab === 'bill' ? 'primary' : undefined" :variant="tab === 'bill' ? 'flat' : 'tonal'"
-                  class="font-weight-medium" @click="tab = 'bill'">
-                  Awaiting Bill
-                  <v-avatar v-if="pos.pendingBills.length" size="18" color="error" class="ms-2 text-caption">
-                    {{ pos.pendingBills.length }}
-                  </v-avatar>
-                </v-chip>
-              </div>
+              <template v-else>
+                <div class="app-header-bar d-flex flex-wrap align-center justify-space-between mb-6 px-5 py-4 ga-3">
+                  <div>
+                    <h1 class="text-h5 font-weight-bold mb-0">POS / Billing</h1>
+                    <p class="text-body-2 text-medium-emphasis mb-0">
+                      {{ tab === 'new' ? 'Take a counter order and collect payment' : "Bill orders once they've been served" }}
+                    </p>
+                  </div>
+                  <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
+                    density="compact" hide-details style="max-width: 220px" />
+                </div>
 
-            <v-text-field v-model="search" placeholder="Search menu items..." prepend-inner-icon="mdi-magnify"
-              density="comfortable" hide-details clearable class="mb-4" />
+                <div class="d-flex flex-wrap ga-2 mb-6">
+                  <v-chip :color="tab === 'new' ? 'primary' : undefined" :variant="tab === 'new' ? 'flat' : 'tonal'"
+                    class="font-weight-medium" @click="tab = 'new'">
+                    New Order
+                  </v-chip>
+                  <!-- Awaiting Bill tab hidden per request - v-window-item value="bill" kept intact below
+                  <v-chip :color="tab === 'bill' ? 'primary' : undefined" :variant="tab === 'bill' ? 'flat' : 'tonal'"
+                    class="font-weight-medium" @click="tab = 'bill'">
+                    Awaiting Bill
+                    <v-avatar v-if="pos.pendingBills.length" size="18" color="error" class="ms-2 text-caption">
+                      {{ pos.pendingBills.length }}
+                    </v-avatar>
+                  </v-chip>
+                  -->
+                </div>
 
-            <div class="d-flex flex-wrap ga-2 mb-4">
-              <v-chip :color="!categoryFilter ? 'primary' : undefined" :variant="!categoryFilter ? 'flat' : 'tonal'"
-                class="font-weight-medium" @click="categoryFilter = null">All</v-chip>
-              <v-chip v-for="cat in menu.categories" :key="cat.id"
-                :color="categoryFilter === cat.id ? 'primary' : undefined"
-                :variant="categoryFilter === cat.id ? 'flat' : 'tonal'" class="font-weight-medium"
-                @click="categoryFilter = cat.id">
-                {{ cat.name }}
-              </v-chip>
-            </div>
+                <v-text-field v-model="search" placeholder="Search menu items..." prepend-inner-icon="mdi-magnify"
+                  density="comfortable" hide-details clearable class="mb-4" />
 
+                <div class="d-flex flex-wrap ga-2 mb-4">
+                  <v-chip :color="!categoryFilter ? 'primary' : undefined" :variant="!categoryFilter ? 'flat' : 'tonal'"
+                    class="font-weight-medium" @click="categoryFilter = null">All</v-chip>
+                  <v-chip v-for="cat in menu.categories" :key="cat.id"
+                    :color="categoryFilter === cat.id ? 'primary' : undefined"
+                    :variant="categoryFilter === cat.id ? 'flat' : 'tonal'" class="font-weight-medium"
+                    @click="categoryFilter = cat.id">
+                    {{ cat.name }}
+                  </v-chip>
+                </div>
+              </template>
+
+            <div :class="{ 'px-3 pt-3': isMobile }">
             <v-row>
               <v-col v-for="item in visibleItems" :key="item.id" cols="6" sm="4" lg="3">
                 <div class="app-card h-100 d-flex flex-column overflow-hidden pos-item-card"
@@ -85,6 +129,7 @@
             <div v-if="visibleItems.length < filteredItems.length" class="d-flex justify-center mt-4" :class="{ 'mb-20': mobile }">
               <v-btn variant="outlined" class="load-more-btn" @click="itemsShown += 20">View More</v-btn>
             </div>
+            </div>
           </v-col>
 
           <!-- Cart panel: fixed side panel on desktop -->
@@ -106,10 +151,10 @@
           </v-col>
         </v-row>
 
-        <!-- Mobile: fixed bottom bar + expandable sheet -->
+        <!-- Mobile/tablet: fixed bottom bar + expandable sheet -->
         <template v-if="mobile">
           <div v-if="cart.length" class="pos-mobile-bar d-flex align-center justify-space-between px-4 py-3"
-            @click="mobileCartOpen = true">
+            :class="{ 'pos-mobile-bar--phone': isMobile }" @click="mobileCartOpen = true">
             <div class="text-white">
               <div class="text-caption" style="opacity: 0.85">{{ cartItemCount }} item(s)</div>
               <div class="text-subtitle-1 font-weight-bold mono-data">{{ $formatPrice(total) }}</div>
@@ -120,11 +165,13 @@
           </div>
 
           <v-bottom-sheet v-model="mobileCartOpen" inset>
-            <v-card class="pos-mobile-sheet d-flex flex-column">
-              <div class="d-flex justify-end px-4 pt-3 pb-1 flex-shrink-0">
+            <v-card class="pos-mobile-sheet" :class="{ 'pos-mobile-sheet--phone': isMobile }">
+              <div class="pos-mobile-sheet-header d-flex align-center justify-space-between px-4 pt-3 pb-1">
+                <span v-if="isMobile" class="text-subtitle-1 font-weight-bold">Your Order</span>
+                <v-spacer v-if="isMobile" />
                 <v-btn icon="mdi-close" variant="text" size="small" @click="mobileCartOpen = false" />
               </div>
-              <div class="flex-grow-1 overflow-hidden px-4 pb-4">
+              <div class="px-4 pb-4">
                 <POSCartPanel
                   ref="cartPanelMobileRef"
                   :cart="cart" :table-options="tableOptions" :drafts-list="drafts.drafts"
@@ -255,9 +302,14 @@ import { usePosDraftsStore } from '@/stores/posDrafts'
 import { useBranchSelector } from '@/composables/useBranchSelector'
 import { useUnitLabel } from '@/composables/useUnitLabel'
 import { useDisplay } from 'vuetify'
+import { useDevice } from '@/composables/useDevice'
 import POSCartPanel from '@/components/POSCartPanel.vue'
 
 const { unitShortLabel } = useUnitLabel()
+// `mobile` (<1280, tablet-or-phone) drives the existing bottom-bar/sheet cart
+// layout below and must stay untouched. `isMobile` (<600, true phones only)
+// is used only to add extra phone-specific polish inside that same layout.
+const { isMobile } = useDevice()
 
 const pos = usePOSStore()
 const orders = useOrdersStore()
@@ -511,12 +563,13 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   position: absolute;
   right: 8px;
   bottom: -16px;
-  box-shadow: 0 4px 10px -2px rgba(109, 40, 217, 0.45);
+  box-shadow: 0 4px 10px -2px rgba(124, 58, 237, 0.45);
 }
-/* Cart panel is pinned in place (not scrollable with the page) - only its
-   own item-lines list scrolls internally (see POSCartPanel.vue), so the
-   totals/payment buttons stay visible at all times without needing the
-   outer page to scroll further. */
+/* Cart panel is pinned in place (not scrollable with the page). It scrolls
+   internally, and POSCartPanel.vue's own totals/payment footer is
+   position:sticky within that scroll so it's always reachable regardless of
+   how tall the cart/fields content gets, without the outer page needing to
+   scroll further. */
 
 .pos-cart-box {
   width: 100%;
@@ -532,6 +585,7 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   top: 16px;
   height: calc(100vh - 132px);
   max-height: 780px;
+  overflow-y: auto;
 }
 
 /* Mobile: cart collapses to a fixed bar at the bottom of the screen; tapping
@@ -543,15 +597,48 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   bottom: 12px;
   z-index: 1000;
   cursor: pointer;
-  border-radius: 16px;
-  background: rgb(var(--v-theme-primary));
-  box-shadow: 0 8px 24px -4px rgba(109, 40, 217, 0.4);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.45);
 }
 
+/* max-height caps how tall the sheet gets, but it is also the scroll
+   container itself (overflow-y: auto) rather than relying on exact
+   viewport-unit math to fit everything without scrolling - forcing a fixed
+   height:100vh previously made the v-bottom-sheet "inset" overlay taller
+   than the actual visible area on some mobile browsers/WebViews, clipping
+   the footer buttons with no way to reach them. Now, even if the max-height
+   guess is imperfect, the sheet itself scrolls so nothing is ever
+   unreachable - the header stays pinned via sticky, and POSCartPanel.vue's
+   own totals/payment footer is sticky to the bottom of this same scroll. */
 .pos-mobile-sheet {
-  height: 100vh;
-  max-height: 100vh;
-  border-radius: 20px 20px 0 0 !important;
-  overflow: hidden;
+  max-height: 90vh;
+  max-height: 90dvh;
+  border-radius: 24px 24px 0 0 !important;
+  overflow-y: auto;
+}
+
+.pos-mobile-sheet-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+}
+
+@media (max-width: 600px) {
+  .pos-item-card {
+    border-radius: 14px;
+  }
+
+  .pos-mobile-bar--phone {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + var(--mobile-bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px;
+  }
+
+  .pos-mobile-sheet--phone {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 </style>

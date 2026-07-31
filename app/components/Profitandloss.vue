@@ -42,11 +42,11 @@
       <h3 class="text-subtitle-1 font-weight-bold mb-2">Income</h3>
       <div class="app-card mb-6">
         <div v-for="(item, idx) in report.income.accounts" :key="item.accountId"
-          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EEE9F7' : ''">
           <span>{{ item.accountName }}</span>
           <span class="mono-data">{{ $formatPrice(item.credit - item.debit) }}</span>
         </div>
-        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EAE6F2; background: #FBFAFD">
+        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EEE9F7; background: #FBFAFD">
           <span>Total Income</span>
           <span class="mono-data">{{ $formatPrice(report.income.total) }}</span>
         </div>
@@ -56,11 +56,11 @@
       <h3 class="text-subtitle-1 font-weight-bold mb-2">Expenses</h3>
       <div class="app-card mb-6">
         <div v-for="(item, idx) in report.expenses.accounts" :key="item.accountId"
-          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EAE6F2' : ''">
+          class="d-flex justify-space-between px-5 py-3" :style="idx > 0 ? 'border-top: 1px solid #EEE9F7' : ''">
           <span>{{ item.accountName }}</span>
           <span class="mono-data">{{ $formatPrice(item.debit - item.credit) }}</span>
         </div>
-        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EAE6F2; background: #FBFAFD">
+        <div class="d-flex justify-space-between px-5 py-3 font-weight-bold" style="border-top: 1px solid #EEE9F7; background: #FBFAFD">
           <span>Total Expenses</span>
           <span class="mono-data">{{ $formatPrice(report.expenses.total) }}</span>
         </div>

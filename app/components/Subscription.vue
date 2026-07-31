@@ -1,9 +1,9 @@
 <template>
-  <v-container class="py-8">
+  <v-container class="py-4 py-sm-8">
     <!-- Header -->
-    <div class="d-flex flex-column align-center mb-8 text-center">
-      <h1 class="text-h4 font-weight-bold mb-2">Subscription Plans</h1>
-      <p class="text-body-1 text-medium-emphasis">
+    <div class="d-flex flex-column align-center mb-4 mb-sm-8 text-center">
+      <h1 class="text-h5 text-sm-h4 font-weight-bold mb-2">Subscription Plans</h1>
+      <p class="text-body-2 text-sm-body-1 text-medium-emphasis">
         Choose the right plan for your business — upgrade anytime.
       </p>
     </div>
@@ -123,6 +123,6 @@ onMounted(async () => {
 
 .plan-card-hero {
   height: 64px;
-  background: linear-gradient(135deg, #6D28D9 0%, #5B21B6 100%);
+  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
 }
 </style>

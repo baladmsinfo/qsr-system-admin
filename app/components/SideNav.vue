@@ -186,6 +186,7 @@ import { useToast } from "vue-toastification";
 import { useAuthStore } from "@/stores/auth";
 import { useCompanyStore } from "@/stores/company";
 import { useNavDrawer } from "@/composables/useNavDrawer";
+import { getNavItems } from "@/utils/navItems";
 import { storeToRefs } from "pinia";
 
 const router = useRouter();
@@ -237,14 +238,15 @@ const roleLabels = {
 };
 const roleLabel = computed(() => roleLabels[role.value] || "");
 
-const isSuperAdmin = computed(() => role.value === "SUPERADMIN");
-const isBranchAdmin = computed(() => role.value === "BRANCHADMIN");
-const canManageBranch = computed(() => ["SUPERADMIN", "BRANCHADMIN"].includes(role.value));
-const canManageAccounting = computed(() => ["SUPERADMIN", "ACCOUNTANT"].includes(role.value));
-const canSeeKitchen = computed(() => ["SUPERADMIN", "BRANCHADMIN", "KITCHEN"].includes(role.value));
-const canSeeOrders = computed(() => ["SUPERADMIN", "BRANCHADMIN", "WAITER", "CASHIER", "KITCHEN", "ACCOUNTANT"].includes(role.value));
-const canSeePos = computed(() => ["SUPERADMIN", "BRANCHADMIN", "CASHIER"].includes(role.value));
-const canSeeCustomers = computed(() => ["SUPERADMIN", "BRANCHADMIN", "WAITER", "CASHIER"].includes(role.value));
+const navFlags = computed(() => getNavItems(role.value).flags);
+const isSuperAdmin = computed(() => navFlags.value.isSuperAdmin);
+const isBranchAdmin = computed(() => navFlags.value.isBranchAdmin);
+const canManageBranch = computed(() => navFlags.value.canManageBranch);
+const canManageAccounting = computed(() => navFlags.value.canManageAccounting);
+const canSeeKitchen = computed(() => navFlags.value.canSeeKitchen);
+const canSeeOrders = computed(() => navFlags.value.canSeeOrders);
+const canSeePos = computed(() => navFlags.value.canSeePos);
+const canSeeCustomers = computed(() => navFlags.value.canSeeCustomers);
 
 async function handleLogout() {
     await Auth.logout();
@@ -266,14 +268,15 @@ onMounted(async () => {
 <style scoped>
 .side-nav {
     background: #fff !important;
-    border-right: 1px solid #EAE6F2 !important;
+    border-right: 1px solid #EEE9F7 !important;
 }
 
 .brand-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: rgb(var(--v-theme-primary));
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+    box-shadow: 0 6px 16px -4px rgba(124, 58, 237, 0.5);
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
@@ -294,10 +297,11 @@ onMounted(async () => {
 
 .side-nav-list :deep(.nav-item),
 .side-nav-list :deep(.nav-subitem) {
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 2px;
     min-height: 42px;
     color: #5B5566;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .side-nav-list :deep(.nav-subitem) {
@@ -308,17 +312,21 @@ onMounted(async () => {
 
 .side-nav-list :deep(.nav-item:hover),
 .side-nav-list :deep(.nav-subitem:hover) {
-    background: #F7F5FB;
+    background: #F8F6FC;
 }
 
 .side-nav-list :deep(.nav-item.v-list-item--active) {
-    background: #F3F1F8;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%);
     color: rgb(var(--v-theme-primary));
     font-weight: 600;
-    border-left: 3px solid rgb(var(--v-theme-primary));
+}
+
+.side-nav-list :deep(.nav-item.v-list-item--active .v-icon) {
+    color: rgb(var(--v-theme-primary));
 }
 
 .side-nav-list :deep(.v-list-group__items .nav-subitem.v-list-item--active) {
+    background: rgba(124, 58, 237, 0.08);
     color: rgb(var(--v-theme-primary));
     font-weight: 600;
 }

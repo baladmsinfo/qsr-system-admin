@@ -40,13 +40,13 @@
       <template v-for="(item, index) in reports.ledger">
         <!-- 🧾 Account Header -->
         <div v-if="item.isHeader" :key="'h' + index" class="px-5 py-3 font-weight-bold"
-          :style="{ background: '#FBFAFD', borderTop: index > 0 ? '1px solid #EAE6F2' : 'none' }">
+          :style="{ background: '#FBFAFD', borderTop: index > 0 ? '1px solid #EEE9F7' : 'none' }">
           {{ item.accountName }}
         </div>
 
         <!-- 💰 Transaction Row -->
         <div v-else :key="index" class="d-flex flex-wrap justify-space-between align-center px-5 py-3 ga-3"
-          style="border-top: 1px solid #EAE6F2">
+          style="border-top: 1px solid #EEE9F7">
           <div style="min-width: 110px" class="text-caption text-medium-emphasis">{{ formatDate(item.date) }}</div>
           <div class="flex-grow-1 text-body-2" style="min-width: 180px">{{ item.description }}</div>
           <div class="d-flex ga-6">

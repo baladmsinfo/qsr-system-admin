@@ -226,7 +226,7 @@ const confirmDelete = (item) => {
 function customerMenuActions(c) {
   return [
     { icon: "mdi-eye", color: "#2563EB", label: "View Details", onClick: () => viewCustomer(c.id) },
-    { icon: "mdi-pencil", color: "#6D28D9", label: "Edit", onClick: () => openDialog(c) },
+    { icon: "mdi-pencil", color: "#7C3AED", label: "Edit", onClick: () => openDialog(c) },
     { icon: "mdi-delete", color: "#DC2626", label: "Delete", onClick: () => confirmDelete(c), dividerBefore: true, danger: true },
   ];
 }

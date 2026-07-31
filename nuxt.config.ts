@@ -64,9 +64,7 @@ export default defineNuxtConfig({
 
   fonts: {
     families: [
-      { name: "Inter", provider: "google", weights: [400, 500, 600] },
-      { name: "Manrope", provider: "google", weights: [600, 700, 800] },
-      { name: "JetBrains Mono", provider: "google", weights: [500, 600] },
+      { name: "Hanken Grotesk", provider: "google", weights: [400, 500, 600, 700, 800] },
     ],
   },
 

@@ -284,7 +284,7 @@ watch(selectedBranchId, (val) => { if (val) load() })
   gap: 8px;
   padding: 14px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  background: #2563EB;
   color: #fff;
   font-weight: 700;
   font-size: 0.875rem;

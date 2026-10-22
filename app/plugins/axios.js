@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useSubscriptionStore } from "@/stores/subscription";
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig();
   const axiosInstance = axios.create({
@@ -28,6 +29,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       // Handle response error
       if (error.response && error.response.status === 401) {
         useAuthStore().logout();
+      }
+      // The backend refused because of a plan limit - show the shared
+      // upgrade prompt (screens still get the rejection as usual).
+      const body = error.response?.data;
+      if (body?.code === "SUBSCRIPTION_LIMIT_REACHED") {
+        const subscription = useSubscriptionStore();
+        subscription.showLimitPrompt({ ...(body.data || {}), message: body.message });
+        subscription.fetchStatus();
       }
       return Promise.reject(error);
     }

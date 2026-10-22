@@ -52,7 +52,7 @@ const props = defineProps({
           class="tw-group tw-relative tw-block tw-aspect-square tw-rounded-2xl tw-overflow-hidden tw-bg-slate-200 dark:tw-bg-slate-800"
         >
           <img v-if="card.imageUrl" :src="card.imageUrl" alt="" class="tw-h-full tw-w-full tw-object-cover tw-transition group-hover:tw-scale-105" />
-          <div class="tw-absolute tw-inset-0 tw-bg-gradient-to-t tw-from-black/70 tw-via-transparent tw-to-transparent tw-flex tw-items-end tw-p-4">
+          <div class="tw-absolute tw-inset-0 tw-bg-black/50 tw-flex tw-items-end tw-p-4">
             <div>
               <p class="tw-text-white tw-font-semibold">{{ card.title }}</p>
               <p v-if="card.body" class="tw-text-white/70 tw-text-xs">{{ card.body }}</p>

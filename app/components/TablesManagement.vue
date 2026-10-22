@@ -8,7 +8,8 @@
       <div class="d-flex ga-3 align-center">
         <v-select v-if="isSuperAdmin" v-model="selectedBranchId" :items="branchOptions" label="Branch"
           density="compact" hide-details style="max-width: 220px" />
-        <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">Add Table</v-btn>
+        <span v-if="usageLabel('TABLES')" class="text-caption text-medium-emphasis">{{ usageLabel('TABLES') }}</span>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('TABLES', () => openDialog())">Add Table</v-btn>
       </div>
     </div>
 
@@ -73,6 +74,8 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
+const { guard, usageLabel } = useSubscription()
 import { ref, reactive, watch, onMounted } from 'vue'
 import QRCode from 'qrcode'
 import { useTableStore } from '@/stores/tables'

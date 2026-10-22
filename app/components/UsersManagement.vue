@@ -34,7 +34,7 @@
             @click="toggleExpand(item.id)">
             {{ item.users.length }} Staff
           </v-btn>
-          <v-btn size="small" variant="text" icon="mdi-account-plus" color="primary" @click="openCreateUserDialog(item.id)" />
+          <v-btn size="small" variant="text" icon="mdi-account-plus" color="primary" @click="guard('STAFF_USERS', () => openCreateUserDialog(item.id))" />
           <v-btn size="small" variant="text" icon="mdi-delete" color="error" @click="openDeleteDialog(item)" />
         </div>
       </div>
@@ -131,6 +131,8 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
+const { guard, usageLabel } = useSubscription()
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useCompanyStore } from "@/stores/company";
 

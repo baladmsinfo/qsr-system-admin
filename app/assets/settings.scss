@@ -34,21 +34,16 @@
 
 body {
   background-color: #F8F6FC;
-  background-image: radial-gradient(circle at 100% 0%, rgba(124, 58, 237, 0.05), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(219, 39, 119, 0.04), transparent 45%);
-  background-attachment: fixed;
 }
 
-// Gradient utilities - primary actions, active states, highlights only
+// Solid primary utilities (class names kept for compatibility - the app
+// uses flat colours only, no gradients).
 .gradient-primary-bg {
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%) !important;
+  background: #7C3AED !important;
   color: #fff !important;
 }
 .gradient-primary-text {
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #7C3AED;
 }
 .glass-surface {
   background: rgba(255, 255, 255, 0.75);
@@ -56,10 +51,9 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
-// Any existing `color="primary"` filled button automatically renders the
-// gradient - no markup changes needed anywhere the app already uses it.
+// Every `color="primary"` filled button renders in the solid primary purple.
 .v-btn.bg-primary {
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%) !important;
+  background: #7C3AED !important;
   box-shadow: 0 8px 20px -6px rgba(124, 58, 237, 0.45);
 }
 
@@ -149,7 +143,7 @@ body {
 
 .v-select__content .v-list-item--active,
 .v-autocomplete__content .v-list-item--active {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%) !important;
+  background: rgba(124, 58, 237, 0.12) !important;
 }
 
 .v-select__content .v-list-item--active .v-list-item-title,

@@ -9,7 +9,7 @@
       <MobileEmptyState v-if="!displayedBranches.length" icon="mdi-source-branch" title="No branches found"
         description="Tap Add Branch below to create your first branch.">
         <template #action>
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">Add Branch</v-btn>
+          <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('BRANCHES', () => guard('STAFF_USERS', openAddDialog))">Add Branch</v-btn>
         </template>
       </MobileEmptyState>
 
@@ -33,7 +33,7 @@
     </div>
 
     <MobileActionBar v-if="displayedBranches.length">
-      <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="openAddDialog">
+      <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="guard('BRANCHES', () => guard('STAFF_USERS', openAddDialog))">
         Add Branch
       </v-btn>
     </MobileActionBar>
@@ -87,8 +87,11 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useCompanyStore } from "@/stores/company";
+
+const { guard, usageLabel } = useSubscription()
 
 const store = useCompanyStore();
 

@@ -113,7 +113,7 @@ async function handleLogout() {
   width: 42px;
   height: 42px;
   border-radius: 13px;
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  background: #7C3AED;
   box-shadow: 0 6px 16px -4px rgba(124, 58, 237, 0.5);
   flex-shrink: 0;
   overflow: hidden;
@@ -152,7 +152,7 @@ async function handleLogout() {
 }
 
 .mobile-side-nav-list :deep(.nav-item.v-list-item--active) {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%);
+  background: rgba(124, 58, 237, 0.12);
   color: rgb(var(--v-theme-primary));
   font-weight: 600;
 }

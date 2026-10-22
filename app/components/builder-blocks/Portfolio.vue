@@ -26,7 +26,7 @@ const props = defineProps({
           class="tw-group tw-relative tw-block tw-aspect-square tw-rounded-xl tw-overflow-hidden tw-bg-slate-200 dark:tw-bg-slate-800"
         >
           <img v-if="item.imageUrl" :src="item.imageUrl" alt="" class="tw-h-full tw-w-full tw-object-cover tw-transition group-hover:tw-scale-105" />
-          <div class="tw-absolute tw-inset-0 tw-bg-gradient-to-t tw-from-black/70 tw-via-transparent tw-to-transparent tw-flex tw-items-end tw-p-4">
+          <div class="tw-absolute tw-inset-0 tw-bg-black/50 tw-flex tw-items-end tw-p-4">
             <div>
               <p class="tw-text-white tw-font-semibold">{{ item.title }}</p>
               <p v-if="item.category" class="tw-text-white/70 tw-text-xs">{{ item.category }}</p>

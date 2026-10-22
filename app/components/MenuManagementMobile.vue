@@ -22,7 +22,7 @@
           <MobileEmptyState v-if="!menu.items.length" icon="mdi-food-outline" title="No menu items yet"
             description="Tap Add Item below to create your first item.">
             <template #action>
-              <v-btn color="primary" prepend-icon="mdi-plus" @click="openItemDialog()">Add Item</v-btn>
+              <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('MENU_ITEMS', () => openItemDialog())">Add Item</v-btn>
             </template>
           </MobileEmptyState>
 
@@ -59,7 +59,7 @@
         </div>
 
         <MobileActionBar v-if="menu.items.length">
-          <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="openItemDialog()">
+          <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="guard('MENU_ITEMS', () => openItemDialog())">
             Add Item
           </v-btn>
         </MobileActionBar>
@@ -194,12 +194,15 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useMenuStore } from '@/stores/menu'
 import { useTaxStore } from '@/stores/tax'
 import { useBranchSelector } from '@/composables/useBranchSelector'
 import ActionMenu from '@/components/ActionMenu.vue'
 import { useUnitLabel } from '@/composables/useUnitLabel'
+
+const { guard, usageLabel } = useSubscription()
 
 const { unitShortLabel } = useUnitLabel()
 

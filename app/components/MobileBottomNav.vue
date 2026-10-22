@@ -79,7 +79,7 @@ function isActive(item) {
 }
 
 .mobile-bottom-nav-item--active .mobile-bottom-nav-icon {
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  background: #7C3AED;
   color: #fff;
 }
 

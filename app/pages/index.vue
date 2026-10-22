@@ -86,7 +86,7 @@ function goToRegister() {
   background: #fff;
 }
 .brand-panel {
-  background: linear-gradient(160deg, #7C3AED 0%, #DB2777 100%);
+  background: #7C3AED;
 }
 .brand-mark-lg {
   width: 44px;

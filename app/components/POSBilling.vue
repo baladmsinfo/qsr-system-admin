@@ -4,8 +4,10 @@
       <!-- ============ NEW ORDER (counter POS) ============ -->
       <v-window-item value="new">
         <v-row>
-          <!-- Menu browser -->
-          <v-col cols="12" md="8" lg="8">
+          <!-- Menu browser - full width whenever the side cart is hidden.
+               Vuetify's lg breakpoint (1280) is the same threshold as
+               `mobile`, so the split only applies when the cart panel shows. -->
+          <v-col cols="12" lg="7" xl="8">
               <template v-if="isMobile">
                 <div class="mobile-sticky-stack pos-mobile-header-stack">
                   <MobilePageHeader title="POS / Billing" :sticky="false"
@@ -88,10 +90,10 @@
                 </div>
               </template>
 
-            <div :class="{ 'px-3 pt-3': isMobile }">
-            <v-row>
-              <v-col v-for="item in visibleItems" :key="item.id" cols="6" sm="4" lg="3">
-                <div class="app-card h-100 d-flex flex-column overflow-hidden pos-item-card"
+            <div :class="{ 'px-3 pt-3': isMobile, 'pos-grid-with-bar': mobile && cart.length }">
+            <div class="pos-item-grid">
+                <div v-for="item in visibleItems" :key="item.id"
+                  class="app-card h-100 d-flex flex-column overflow-hidden pos-item-card"
                   :class="{ 'pos-item-card--disabled': item.availability !== 'AVAILABLE' }"
                   @click="addToCart(item)">
                   <div class="pos-item-image-wrap">
@@ -117,23 +119,20 @@
                     </div>
                   </div>
                 </div>
-              </v-col>
+            </div>
 
-              <v-col v-if="!filteredItems.length" cols="12">
-                <div class="app-card pa-10 text-center text-medium-emphasis">
-                  {{ menu.loading ? 'Loading menu...' : 'No items found' }}
-                </div>
-              </v-col>
-            </v-row>
+            <div v-if="!filteredItems.length" class="app-card pa-10 text-center text-medium-emphasis">
+              {{ menu.loading ? 'Loading menu...' : 'No items found' }}
+            </div>
 
-            <div v-if="visibleItems.length < filteredItems.length" class="d-flex justify-center mt-4" :class="{ 'mb-20': mobile }">
+            <div v-if="visibleItems.length < filteredItems.length" class="d-flex justify-center mt-4">
               <v-btn variant="outlined" class="load-more-btn" @click="itemsShown += 20">View More</v-btn>
             </div>
             </div>
           </v-col>
 
-          <!-- Cart panel: fixed side panel on desktop -->
-          <v-col class="pos-cart-box" v-if="!mobile" cols="12" md="4" lg="4">
+          <!-- Cart panel: sticky side panel on desktop (>= 1280) -->
+          <v-col class="pos-cart-box" v-if="!mobile" cols="12" lg="5" xl="4">
             <div class="app-card pa-4 pos-cart-panel">
               <POSCartPanel
                 ref="cartPanelRef"
@@ -545,6 +544,18 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
 </script>
 
 <style scoped>
+/* Cards per row follow the space actually available rather than fixed
+   breakpoint counts - ~2 on phones, 4-5 on tablets, 3 beside the desktop
+   cart, more on wide screens - so the grid always fills its column. */
+.pos-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+}
+/* Room for the fixed cart bar so it never covers the last row of items. */
+.pos-grid-with-bar {
+  padding-bottom: 96px;
+}
 .pos-item-card {
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -565,26 +576,15 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   bottom: -16px;
   box-shadow: 0 4px 10px -2px rgba(124, 58, 237, 0.45);
 }
-/* Cart panel is pinned in place (not scrollable with the page). It scrolls
+/* Cart panel stays pinned while the menu scrolls (sticky, so it keeps its
+   column's exact width instead of sizing to its content). It scrolls
    internally, and POSCartPanel.vue's own totals/payment footer is
    position:sticky within that scroll so it's always reachable regardless of
-   how tall the cart/fields content gets, without the outer page needing to
-   scroll further. */
-
-.pos-cart-box {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 50px 0;
-}
-
+   how tall the cart/fields content gets. */
 .pos-cart-panel {
-  width: fit-content;
-  margin: 50px 0;
-  position: fixed;
-  top: 16px;
-  height: calc(100vh - 132px);
-  max-height: 780px;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
   overflow-y: auto;
 }
 
@@ -598,7 +598,7 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
   z-index: 1000;
   cursor: pointer;
   border-radius: 18px;
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  background: #7C3AED;
   box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.45);
 }
 
@@ -626,6 +626,11 @@ watch(selectedBranchId, (val) => { if (val) loadBranchData() })
 }
 
 @media (max-width: 600px) {
+  .pos-item-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+  }
+
   .pos-item-card {
     border-radius: 14px;
   }

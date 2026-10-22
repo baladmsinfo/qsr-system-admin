@@ -8,7 +8,7 @@
       <MobileEmptyState v-if="!tableStore.tables.length" icon="mdi-table-chair" title="No tables yet"
         description="Add your first table to generate its QR code.">
         <template #action>
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openDialog()">Add Table</v-btn>
+          <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('TABLES', () => openDialog())">Add Table</v-btn>
         </template>
       </MobileEmptyState>
 
@@ -34,7 +34,7 @@
     </div>
 
     <MobileActionBar v-if="tableStore.tables.length">
-      <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="openDialog()">
+      <v-btn block size="large" color="primary" prepend-icon="mdi-plus" class="font-weight-bold" @click="guard('TABLES', () => openDialog())">
         Add Table
       </v-btn>
     </MobileActionBar>
@@ -58,10 +58,13 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
 import { ref, reactive, watch, onMounted } from 'vue'
 import QRCode from 'qrcode'
 import { useTableStore } from '@/stores/tables'
 import { useBranchSelector } from '@/composables/useBranchSelector'
+
+const { guard, usageLabel } = useSubscription()
 
 const tableStore = useTableStore()
 const { isSuperAdmin, selectedBranchId, branchOptions } = useBranchSelector()

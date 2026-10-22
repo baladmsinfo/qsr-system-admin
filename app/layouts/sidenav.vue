@@ -12,6 +12,8 @@
 
     <MobileBottomNav v-if="isMobile" />
     <MobileSideNav v-if="isMobile" v-model="moreOpen" />
+
+    <SubscriptionLimitDialog />
 </template>
 
 <script setup>
@@ -21,6 +23,8 @@ import MobileSideNav from "@/components/MobileSideNav.vue";
 import { useDevice } from "@/composables/useDevice";
 import { useNavDrawer } from "@/composables/useNavDrawer";
 import { useAuthStore } from "@/stores/auth";
+import { useSubscriptionStore } from "@/stores/subscription";
+import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 
 const { isMobile, isTablet } = useDevice();
@@ -29,6 +33,12 @@ const Auth = useAuthStore();
 const { userInfo } = storeToRefs(Auth);
 
 await useAsyncData("initializeUser", () => Auth.fetchMe());
+
+// Plan limits + usage for every screen (Add buttons, usage labels, banner).
+const subscription = useSubscriptionStore();
+onMounted(() => {
+    if (!subscription.status) subscription.fetchStatus();
+});
 </script>
 
 <style scoped>

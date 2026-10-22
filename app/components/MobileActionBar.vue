@@ -15,6 +15,7 @@
   bottom: var(--mobile-bottom-nav-height, 64px);
   z-index: 1000;
   padding: 12px 16px;
-  background: linear-gradient(to top, #fff 60%, rgba(255, 255, 255, 0));
+  background: #fff;
+  border-top: 1px solid #EEE9F7;
 }
 </style>

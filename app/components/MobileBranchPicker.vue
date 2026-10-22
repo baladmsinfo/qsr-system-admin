@@ -67,7 +67,7 @@ function select(value) {
 }
 
 .mobile-branch-row--active {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%);
+  background: rgba(124, 58, 237, 0.12);
   color: rgb(var(--v-theme-primary));
   font-weight: 700;
 }

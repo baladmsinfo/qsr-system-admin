@@ -10,7 +10,8 @@
                 <p class="text-body-2 text-medium-emphasis mb-0">All branches under your business</p>
             </div>
 
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddDialog">
+            <span v-if="usageLabel('BRANCHES')" class="text-caption text-medium-emphasis ms-auto me-3">{{ usageLabel('BRANCHES') }}</span>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('BRANCHES', () => guard('STAFF_USERS', openAddDialog))">
                 Add Branch
             </v-btn>
         </div>
@@ -228,6 +229,8 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
+const { guard, usageLabel } = useSubscription()
 import { ref, reactive, onMounted, computed, watch } from "vue";
 import { useCompanyStore } from "@/stores/company";
 

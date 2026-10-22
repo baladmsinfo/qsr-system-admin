@@ -7,6 +7,8 @@
     <MobileLoading v-if="loading" :count="4" type="card" />
 
     <div v-else class="pa-4">
+      <SubscriptionBanner />
+
       <!-- HERO GREETING -->
       <div class="mobile-dashboard-hero mb-5">
         <div class="mobile-dashboard-hero-glow" />
@@ -232,7 +234,7 @@ watch(selectedBranchId, (val) => { if (val) loadOrders() })
   overflow: hidden;
   border-radius: 22px;
   padding: 20px 18px;
-  background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+  background: #7C3AED;
   box-shadow: 0 14px 32px -10px rgba(124, 58, 237, 0.45);
   color: #fff;
 }

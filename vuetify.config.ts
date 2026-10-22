@@ -1,8 +1,8 @@
 import { defineVuetifyConfiguration } from "vuetify-nuxt-module/custom-configuration";
 
-// Bucksbox "Soft Premium" design system - a purple-to-pink gradient accent
-// (used sparingly for primary actions/active states) over soft off-white
-// layered surfaces, shared identically with the CUSTOMER app.
+// Bucksbox "Soft Premium" design system - a solid purple accent (primary
+// actions/active states) over soft off-white surfaces. Flat colours only:
+// the app deliberately uses no gradients anywhere.
 export default defineVuetifyConfiguration({
   theme: {
     defaultTheme: "light",
@@ -11,7 +11,8 @@ export default defineVuetifyConfiguration({
         colors: {
           primary: "#7C3AED", // Bucksbox purple - buttons, active nav, links, headline accents
           "primary-darken-1": "#6D28D9",
-          secondary: "#DB2777", // pink - gradient end-stop, secondary highlights
+          secondary: "#7C3AED", // No gradient
+          // secondary: "#DB2777", pink - gradient end-stop, secondary highlights
           accent: "#F59E0B", // warm amber - status highlights, badges (semantic, keep)
           success: "#16A34A",
           warning: "#D97706",

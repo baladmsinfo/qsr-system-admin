@@ -1,13 +1,15 @@
 <template>
-  <v-container class="bg-background" height="100%" fluid>
+  <v-container v-if="!isMobile" fluid>
     <Subscription />
   </v-container>
+  <Subscription v-else />
 </template>
 
 <script setup>
+import { useDevice } from '@/composables/useDevice'
+const { isMobile } = useDevice()
 
 definePageMeta({
-    layout: "pos",
+  layout: "sidenav",
 })
-
 </script>

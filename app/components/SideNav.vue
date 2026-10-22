@@ -155,9 +155,9 @@
                     <span class="text-subtitle-2">Print History</span>
                 </v-list-item>
 
-                <!-- <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
+                <v-list-item :to="'/admin/subscription/subscription'" link class="nav-subitem">
                     <span class="text-subtitle-2">Subscription</span>
-                </v-list-item> -->
+                </v-list-item>
             </v-list-group>
 
             <v-list-item v-if="canManageBranch" :to="'/admin/manageuser'" link class="nav-item">
@@ -275,7 +275,7 @@ onMounted(async () => {
     width: 38px;
     height: 38px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #7C3AED 0%, #DB2777 100%);
+    background: #7C3AED;
     box-shadow: 0 6px 16px -4px rgba(124, 58, 237, 0.5);
     flex-shrink: 0;
     position: relative;
@@ -316,7 +316,7 @@ onMounted(async () => {
 }
 
 .side-nav-list :deep(.nav-item.v-list-item--active) {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(219, 39, 119, 0.1) 100%);
+    background: rgba(124, 58, 237, 0.12);
     color: rgb(var(--v-theme-primary));
     font-weight: 600;
 }

@@ -70,6 +70,7 @@ export function getNavItems(role) {
         { label: "Receipt Templates", to: "/admin/receipt-templates" },
         { label: "Receipt Designer", to: "/admin/receipt-designer" },
         { label: "Print History", to: "/admin/print-history" },
+        { label: "Subscription", to: "/admin/subscription/subscription" },
       ],
     },
   ];

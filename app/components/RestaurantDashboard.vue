@@ -9,6 +9,8 @@
         density="compact" hide-details class="header-branch-select" />
     </div>
 
+    <SubscriptionBanner />
+
     <!-- KPI ROW (Bento) -->
     <v-row class="mb-2">
       <v-col cols="6" md="3">

@@ -23,7 +23,8 @@
         <div class="d-flex flex-wrap align-center justify-space-between mb-5 ga-3">
           <v-select v-model="categoryFilter" :items="categoryOptions" label="Filter by category" clearable
             density="compact" hide-details style="max-width: 260px" @update:model-value="loadItems" />
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openItemDialog()">Add Item</v-btn>
+          <span v-if="usageLabel('MENU_ITEMS')" class="text-caption text-medium-emphasis">{{ usageLabel('MENU_ITEMS') }}</span>
+          <v-btn color="primary" prepend-icon="mdi-plus" @click="guard('MENU_ITEMS', () => openItemDialog())">Add Item</v-btn>
         </div>
 
         <v-row>
@@ -265,12 +266,15 @@
 </template>
 
 <script setup>
+import { useSubscription } from '@/composables/useSubscription'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useMenuStore } from '@/stores/menu'
 import { useTaxStore } from '@/stores/tax'
 import { useBranchSelector } from '@/composables/useBranchSelector'
 import ActionMenu from '@/components/ActionMenu.vue'
 import { useUnitLabel } from '@/composables/useUnitLabel'
+
+const { guard, usageLabel } = useSubscription()
 
 const { unitShortLabel } = useUnitLabel()
 
